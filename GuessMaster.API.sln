@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35327.3
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GuessMaster.API", "GuessMaster.API\GuessMaster.API.csproj", "{FEAC74DD-3630-4BB4-A65A-098332F88070}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GuessMaster.Data", "GuessMaster.Data\GuessMaster.Data.csproj", "{90A74B52-76FE-4AF6-AF6E-ADDB56DB232A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GuessMaster.Service", "GuessMaster.Service\GuessMaster.Service.csproj", "{755D0142-482E-479E-9E7E-00D6FF3A575C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GuessMaster.Repository", "GuessMaster.Repository\GuessMaster.Repository.csproj", "{FC9267A1-37AD-4981-A970-5F729635C817}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FEAC74DD-3630-4BB4-A65A-098332F88070}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FEAC74DD-3630-4BB4-A65A-098332F88070}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FEAC74DD-3630-4BB4-A65A-098332F88070}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FEAC74DD-3630-4BB4-A65A-098332F88070}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90A74B52-76FE-4AF6-AF6E-ADDB56DB232A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90A74B52-76FE-4AF6-AF6E-ADDB56DB232A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90A74B52-76FE-4AF6-AF6E-ADDB56DB232A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90A74B52-76FE-4AF6-AF6E-ADDB56DB232A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{755D0142-482E-479E-9E7E-00D6FF3A575C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{755D0142-482E-479E-9E7E-00D6FF3A575C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{755D0142-482E-479E-9E7E-00D6FF3A575C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{755D0142-482E-479E-9E7E-00D6FF3A575C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC9267A1-37AD-4981-A970-5F729635C817}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC9267A1-37AD-4981-A970-5F729635C817}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC9267A1-37AD-4981-A970-5F729635C817}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC9267A1-37AD-4981-A970-5F729635C817}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {36112912-F3E0-402A-A071-DAC3A116E687}
+	EndGlobalSection
+EndGlobal
