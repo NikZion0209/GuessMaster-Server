@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GuessMaster.Data\GuessMaster.Data.csproj" />
+    <ProjectReference Include="..\GuessMaster.Model\GuessMaster.Model.csproj" />
     <ProjectReference Include="..\GuessMaster.Repository\GuessMaster.Repository.csproj" />
   </ItemGroup>
 

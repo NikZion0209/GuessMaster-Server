@@ -6,9 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\GuessMaster.Data\GuessMaster.Data.csproj" />
-    <ProjectReference Include="..\GuessMaster.Model\GuessMaster.Model.csproj" />
-  </ItemGroup>
-
 </Project>
