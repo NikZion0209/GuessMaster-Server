@@ -1,6 +1,7 @@
 ﻿using GuessMaster.Data.Models;
 using GuessMaster.Repository;
 using GuessMaster.Service.Interface;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,21 +13,44 @@ namespace GuessMaster.Service.Service
     public class PlayerService : IPlayerService
     {
         private readonly IRepositoryManager _repositoryManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public PlayerService(IRepositoryManager repositoryManager)
+        public PlayerService(IRepositoryManager repositoryManager, IHttpContextAccessor httpContextAccessor)
         {
             _repositoryManager = repositoryManager;
+            _httpContextAccessor = httpContextAccessor; 
         }
 
-        public bool AddPlayer(User user)
+        public User AddPlayer(User user)
         {
             try
             {
-               return _repositoryManager.PlayerRepository.AddPlayer(user);
+                return _repositoryManager.PlayerRepository.AddPlayer(user);
             }
             catch (Exception)
             {
-                return false;
+                throw;
+            }
+        }
+
+        public async Task<RoomAssignment> AddPlayerOrAssignmentRoomAsync(User user)
+        {
+            try
+            {
+                var player = _repositoryManager.PlayerRepository.AddPlayer(user);
+                RoomService roomService = new RoomService(_repositoryManager, _httpContextAccessor);
+                var room = await roomService.JoinOrCreateRoomAsync(player.UserId);
+                var roomAssignment = new RoomAssignment()
+                {
+                    RoomId = room.RoomId,
+                    UserId = user.UserId
+                };
+                return roomAssignment;
+            }
+            catch (Exception)
+            {
+
+                throw;
             }
         }
 
@@ -34,7 +58,7 @@ namespace GuessMaster.Service.Service
         {
             try
             {
-               return _repositoryManager.PlayerRepository.GetAllPlayers();
+                return _repositoryManager.PlayerRepository.GetAllPlayers();
             }
             catch (Exception)
             {
@@ -47,7 +71,7 @@ namespace GuessMaster.Service.Service
         {
             try
             {
-               return _repositoryManager.PlayerRepository.RemovePlayer(user);   
+                return _repositoryManager.PlayerRepository.RemovePlayer(user);
             }
             catch (Exception)
             {
@@ -55,5 +79,6 @@ namespace GuessMaster.Service.Service
                 throw;
             }
         }
+
     }
 }

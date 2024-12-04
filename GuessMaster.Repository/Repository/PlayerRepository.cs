@@ -18,17 +18,17 @@ namespace GuessMaster.Repository.Repository
             _context = context;
         }
 
-        public bool AddPlayer(User user)
+        public User AddPlayer(User user)
         {
             try
             {
                 _context.Users.Add(user);
                 _context.SaveChanges();
-                return true;
+                return user;
             }
             catch (Exception)
             {
-                return false;
+                throw;
             }
         }
 

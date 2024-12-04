@@ -9,8 +9,9 @@ namespace GuessMaster.Service.Interface
 {
     public interface IPlayerService
     {
-        bool AddPlayer(User user);
+        User AddPlayer(User user);
         bool RemovePlayer(User user);
         IEnumerable<User> GetAllPlayers();
+        Task<RoomAssignment> AddPlayerOrAssignmentRoomAsync(User user);
     }
 }

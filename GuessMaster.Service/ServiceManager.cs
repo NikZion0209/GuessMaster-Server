@@ -3,6 +3,7 @@ using GuessMaster.Repository.Interface;
 using GuessMaster.Repository.Repository;
 using GuessMaster.Service.Interface;
 using GuessMaster.Service.Service;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -14,13 +15,17 @@ namespace GuessMaster.Service
 {
     public class ServiceManager : IServiceManager
     {
-        private readonly Lazy<IPlayerService> _lazyIPlayerService;
+        private readonly Lazy<IPlayerService> _lazyPlayerService;
+        private readonly Lazy<IRoomService> _lazyRoomService;
 
-        public ServiceManager(IRepositoryManager _repositoryManager)
+        public ServiceManager(IRepositoryManager _repositoryManager,IHttpContextAccessor _httpContextAccessor)
         {
-            _lazyIPlayerService = new Lazy<IPlayerService>(() => new PlayerService(_repositoryManager));
+            _lazyPlayerService = new Lazy<IPlayerService>(() => new PlayerService(_repositoryManager, _httpContextAccessor));
+            _lazyRoomService = new Lazy<IRoomService>(() => new RoomService(_repositoryManager, _httpContextAccessor));
         }
 
-        public IPlayerService PlayerRepository => _lazyIPlayerService.Value;
+        public IPlayerService PlayerService => _lazyPlayerService.Value;
+
+        public IRoomService RoomService => _lazyRoomService.Value;
     }
 }

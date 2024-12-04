@@ -7,10 +7,8 @@ using System.Threading.Tasks;
 
 namespace GuessMaster.Repository.Interface
 {
-    public interface IPlayerRepository
+    public interface IRoomAssignmentRepository
     {
-        User AddPlayer(User user);
-        bool RemovePlayer(User user);
-        IEnumerable<User> GetAllPlayers();
+        public RoomAssignment SaveRoomAssignment(RoomAssignment roomAssignment);
     }
 }

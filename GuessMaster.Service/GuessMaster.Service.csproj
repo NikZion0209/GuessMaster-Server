@@ -7,6 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.3.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\GuessMaster.Data\GuessMaster.Data.csproj" />
     <ProjectReference Include="..\GuessMaster.Model\GuessMaster.Model.csproj" />
     <ProjectReference Include="..\GuessMaster.Repository\GuessMaster.Repository.csproj" />
