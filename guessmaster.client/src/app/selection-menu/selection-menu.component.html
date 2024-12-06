@@ -1,0 +1,12 @@
+﻿<div class="navigation">
+    <ng-container *ngIf="showNavigationBar">
+        <div class="nav-block" [routerLink]="[{ outlets: { game: ['catchphrase'] } }]">Catchphrase</div>
+        <div class="nav-block" [routerLink]="[{ outlets: { game: ['guessTheCountry'] } }]">Guess The Country</div>
+        <div class="nav-block" [routerLink]="[{ outlets: { game: ['pictionary'] } }]">Pictionary</div>
+        <div class="nav-block" [routerLink]="[{ outlets: { game: ['speedTexting'] } }]">Speed Texting</div>
+
+    </ng-container>
+    <ng-container *ngIf="showReturnButton">
+        <div class="nav-block" routerLink="/">Return to menu</div>
+    </ng-container>
+</div>
