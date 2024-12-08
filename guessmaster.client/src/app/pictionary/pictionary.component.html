@@ -1,5 +1,5 @@
 <div class="game-container">
-  <canvas id="matchCanvas" #matchCanvas></canvas>
   <app-word-list [words]="words" (wordSelected)="onWordSelected($event.word, $event.mouse)"></app-word-list>
+  <canvas id="matchCanvas" #matchCanvas></canvas>
   <app-image-list [images]="images" (imageSelected)="onImageSelected($event.image, $event.mouse)"></app-image-list>
 </div>

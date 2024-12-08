@@ -1,13 +1,14 @@
 .image-list {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
+  flex-direction: column; /* Arrange images vertically */
+  align-items: flex-end; /* Align images to the end (right) */
+  padding: 10px;
 }
 
 img {
   width: 100px;
   height: 100px;
-  margin: 10px;
+  margin: 10px 0; /* Add vertical margin between images */
   cursor: pointer;
 }
 
