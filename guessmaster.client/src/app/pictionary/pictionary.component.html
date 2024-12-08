@@ -1,3 +1,7 @@
+<div class="game-stats">
+  <app-timer [time]="time" (timeUp)="onTimeUp()"></app-timer>
+  <app-score [score]="score"></app-score>
+</div>
 <div class="game-container">
   <app-word-list [words]="words" (wordSelected)="onWordSelected($event.word, $event.mouse)"></app-word-list>
   <canvas id="matchCanvas" #matchCanvas></canvas>

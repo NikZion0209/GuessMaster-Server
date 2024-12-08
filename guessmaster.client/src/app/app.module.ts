@@ -6,13 +6,23 @@ import { AppRoutingModule } from './app-routing.module';
 
 import { AppComponent } from './app.component';
 import { SelectionMenuComponent } from './selection-menu/selection-menu.component';
+
 import { GuessTheCountryComponent } from './guess-the-country/guess-the-country.component';
+
 import { PictionaryComponent } from './pictionary/pictionary.component';
-import { CathphraseComponent } from './cathphrase/cathphrase.component';
-import { SpeedTextingComponent } from './speed-texting/speed-texting.component';
 import { WordListComponent } from './pictionary/word-list/word-list.component';
 import { ImageListComponent } from './pictionary/image-list/image-list.component';
 
+import { CathphraseComponent } from './cathphrase/cathphrase.component';
+
+import { SpeedTextingComponent } from './speed-texting/speed-texting.component';
+
+
+import { TimerComponent } from './core-components/timer/timer.component';
+import { ScoreComponent } from './core-components/score/score.component';
+
+//Services
+import { AnimalService } from './services/animal-service.service';
 
 @NgModule({
   declarations: [
@@ -23,13 +33,15 @@ import { ImageListComponent } from './pictionary/image-list/image-list.component
     CathphraseComponent,
     SpeedTextingComponent,
     WordListComponent,
-    ImageListComponent
+    ImageListComponent,
+    TimerComponent,
+    ScoreComponent
   ],
   imports: [
     BrowserModule, HttpClientModule,
     AppRoutingModule
   ],
-  providers: [],
+  providers: [AnimalService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

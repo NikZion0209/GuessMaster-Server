@@ -1,4 +1,6 @@
-import { Component, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
+import { TimerComponent } from '../core-components/timer/timer.component';
+import { AnimalService } from '../services/animal-service.service';
 
 @Component({
   selector: 'app-pictionary',
@@ -7,27 +9,61 @@ import { Component, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 })
 
 export class PictionaryComponent {
-  @ViewChild('matchCanvas', { static: true })
-  canvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('matchCanvas', { static: true }) canvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild(TimerComponent) timerComponent!: TimerComponent;
 
-  words = [
-    { text: 'Cat', disabled: false },
-    { text: 'Dog', disabled: false },
-    { text: 'Bird', disabled: false },
-    { text: 'Fish', disabled: false }
-  ];
+  words: { text: string, disabled: boolean }[] = [];
+  images: { url: string, word: string, disabled: boolean }[] = [];
 
-  images = [
-    { url: '../../assets/animals/cat.jpeg', word: 'Cat', disabled: false },
-    { url: '../../assets/animals/dog.jpeg', word: 'Dog', disabled: false },
-    { url: '../../assets/animals/bird.jpeg', word: 'Bird', disabled: false },
-    { url: '../../assets/animals/fish.jpeg', word: 'Fish', disabled: false }
-  ];
+  time = 60;
+  score = 0;
 
   selectedWord = '';
   selectedImage: { url: string, word: string, disabled: boolean } | null = null;
   selectedWordPosition: { x: number, y: number } | null = null;
   selectedImagePosition: { x: number, y: number } | null = null;
+
+  sixtySecondCountdown = new Audio('assets/sounds/countdownSixty.mp3');
+  correctSound = new Audio('assets/sounds/correctGuess.mp3');
+  incorrectSound = new Audio('assets/sounds/incorrectGuess.mp3');
+
+  constructor(private animalService: AnimalService) {}
+
+  ngOnInit() {
+    this.loadAnimals();
+  }
+
+  loadAnimals() {
+    this.animalService.getAnimals().subscribe(animals => {
+      if (animals.length === 0) {
+        // Fallback data if the HTTP request fails
+       
+      }
+  
+      animals = this.shuffleArray(animals);
+      const selectedAnimals = animals.slice(0, 4);
+  
+      this.words = this.shuffleArray(selectedAnimals.map(animal => ({ text: animal.word, disabled: false })));
+      this.images = this.shuffleArray(selectedAnimals.map(animal => ({ ...animal, disabled: false })));
+    });
+  }
+  
+  shuffleArray(array: any[]): any[] {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  ngAfterViewInit() {
+    this.sixtySecondCountdown.play();
+    this.timerComponent.startTimer();
+  }
+
+  onTimeUp() {
+    alert('Time is up! You scored ' + this.score + ' points!');
+  }
 
   drawLine(start: { x: number, y: number }, end: { x: number, y: number }) {
     const canvas = this.canvas.nativeElement;
@@ -76,14 +112,36 @@ export class PictionaryComponent {
   }
 
   checkGuess(word: string, image: { url: string, word: string, disabled: boolean }) {
+    //correct guess
     if (word === image.word && this.selectedWordPosition && this.selectedImagePosition) {
       this.drawLine(this.selectedWordPosition, this.selectedImagePosition);
       this.words.find(w => w.text === word)!.disabled = true;
       this.images.find(img => img.word === word)!.disabled = true;
+      this.score+= 10;
+      this.correctSound.play();
+    } 
+    //incorrect guess
+    else {
+      this.incorrectSound.play();
     }
+
     this.selectedImage = null;
     this.selectedWord = '';
     this.selectedWordPosition = null;
     this.selectedImagePosition = null;
+
+    if (this.words.every(w => w.disabled) && this.images.every(img => img.disabled)) {
+      this.score+= 50;
+      this.resetGame();
+    }
+  }
+
+  resetGame() {
+    this.loadAnimals();
+    const canvas = this.canvas.nativeElement;
+    const context = canvas.getContext('2d');
+    if (context) {
+      context.clearRect(0, 0, canvas.width, canvas.height);
+    }
   }
 }

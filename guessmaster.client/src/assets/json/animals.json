@@ -1,0 +1,10 @@
+[
+    { "url": "../../../assets/animals/lion.jpeg", "word": "Lion" },
+    { "url": "../../../assets/animals/tiger.jpeg", "word": "Tiger" },
+    { "url": "../../../assets/animals/elephant.jpeg", "word": "Elephant" },
+    { "url": "../../../assets/animals/giraffe.jpeg", "word": "Giraffe" },
+    { "url": "../../../assets/animals/cat.jpeg", "word": "Cat" },
+    { "url": "../../../assets/animals/dog.jpeg", "word": "Dog" },
+    { "url": "../../../assets/animals/bird.jpeg", "word": "Bird" },
+    { "url": "../../../assets/animals/fish.jpeg", "word": "Fish" }
+  ]
