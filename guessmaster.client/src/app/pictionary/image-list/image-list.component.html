@@ -1,1 +1,3 @@
-<p>image-list works!</p>
+<div class="image-list">
+  <img *ngFor="let image of images" [src]="image.url" (click)="selectImage(image, $event)" [class.disabled]="image.disabled" alt="Image">
+</div>

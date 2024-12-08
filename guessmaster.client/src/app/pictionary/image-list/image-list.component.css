@@ -1,0 +1,20 @@
+.image-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+img {
+  width: 100px;
+  height: 100px;
+  margin: 10px;
+  cursor: pointer;
+}
+
+img:hover:not(.disabled) {
+  transform: scale(1.1);
+}
+
+img.disabled {
+  cursor: not-allowed;
+}

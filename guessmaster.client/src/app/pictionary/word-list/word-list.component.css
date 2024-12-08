@@ -1,0 +1,17 @@
+.word-list {
+    display: flex;
+    justify-content: space-around;
+  }
+  button {
+    margin: 10px;
+    padding: 10px;
+    background-color: lightblue;
+    border: none;
+    cursor: pointer;
+  }
+  button:hover:not(:disabled) {
+    background-color: lightcoral;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }

@@ -1,0 +1,17 @@
+.game-container {
+    position: relative;
+}
+
+#matchCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0; /* Ensure the canvas is behind other elements */
+}
+
+app-word-list, app-image-list {
+    position: relative;
+    z-index: 1; /* Ensure the word and image lists are above the canvas */
+}
