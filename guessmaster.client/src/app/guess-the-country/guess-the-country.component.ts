@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
+import { TimerComponent } from '../core-components/timer/timer.component';
 
 @Component({
   selector: 'app-guess-the-country',
@@ -6,5 +7,13 @@ import { Component } from '@angular/core';
   styleUrl: './guess-the-country.component.css'
 })
 export class GuessTheCountryComponent {
+  @ViewChild(TimerComponent) timerComponent!: TimerComponent;
 
+  time = 10;
+  score = 0;
+
+  // After initialision
+  ngAfterViewInit() {
+    //this.timerComponent.startTimer();
+  }
 }

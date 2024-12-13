@@ -1,6 +1,7 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
-import { TimerComponent } from '../core-components/timer/timer.component';
+import { TimerService } from '../services/timer.service';
 import { AnimalService } from '../services/animal-service.service';
+import { ScoreService } from '../services/score.service';
 
 @Component({
   selector: 'app-pictionary',
@@ -10,27 +11,44 @@ import { AnimalService } from '../services/animal-service.service';
 
 export class PictionaryComponent {
   @ViewChild('matchCanvas', { static: true }) canvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild(TimerComponent) timerComponent!: TimerComponent;
 
   words: { text: string, disabled: boolean }[] = [];
   images: { url: string, word: string, disabled: boolean }[] = [];
 
-  time = 60;
+  time = 5;
   score = 0;
+
+  gameState = false;
 
   selectedWord = '';
   selectedImage: { url: string, word: string, disabled: boolean } | null = null;
   selectedWordPosition: { x: number, y: number } | null = null;
   selectedImagePosition: { x: number, y: number } | null = null;
 
-  sixtySecondCountdown = new Audio('assets/sounds/countdownSixty.mp3');
   correctSound = new Audio('assets/sounds/correctGuess.mp3');
   incorrectSound = new Audio('assets/sounds/incorrectGuess.mp3');
 
-  constructor(private animalService: AnimalService) {}
+  constructor(
+    private animalService: AnimalService,
+    private timerService: TimerService,
+    private scoreService: ScoreService
+  ) {}
 
   ngOnInit() {
     this.loadAnimals();
+    this.timerService.timeUp.subscribe(() => this.onTimeUp());
+  }
+
+  ngAfterViewInit() {
+    this.gameState = true;
+    this.timerService.startTimer(this.time);
+  }
+
+  ngOnDestroy() {
+    if (this.gameState){
+      this.timerService.stopTimer();
+    }
+    this.scoreService.resetScore();
   }
 
   loadAnimals() {
@@ -56,13 +74,10 @@ export class PictionaryComponent {
     return array;
   }
 
-  ngAfterViewInit() {
-    this.sixtySecondCountdown.play();
-    this.timerComponent.startTimer();
-  }
-
   onTimeUp() {
-    alert('Time is up! You scored ' + this.score + ' points!');
+    this.gameState = false;
+    const totalScore = this.scoreService.retrieveScore();
+    alert('Time is up! You scored ' + totalScore + ' points!');
   }
 
   drawLine(start: { x: number, y: number }, end: { x: number, y: number }) {
@@ -117,7 +132,7 @@ export class PictionaryComponent {
       this.drawLine(this.selectedWordPosition, this.selectedImagePosition);
       this.words.find(w => w.text === word)!.disabled = true;
       this.images.find(img => img.word === word)!.disabled = true;
-      this.score+= 10;
+      this.scoreService.addScore(10);
       this.correctSound.play();
     } 
     //incorrect guess
@@ -131,7 +146,7 @@ export class PictionaryComponent {
     this.selectedImagePosition = null;
 
     if (this.words.every(w => w.disabled) && this.images.every(img => img.disabled)) {
-      this.score+= 50;
+      this.scoreService.addScore(50);
       this.resetGame();
     }
   }
