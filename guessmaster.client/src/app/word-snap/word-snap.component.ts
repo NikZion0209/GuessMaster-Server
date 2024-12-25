@@ -4,18 +4,18 @@ import { AnimalService } from '../services/animal-service.service';
 import { ScoreService } from '../services/score.service';
 
 @Component({
-  selector: 'app-pictionary',
-  templateUrl: './pictionary.component.html',
-  styleUrls: ['./pictionary.component.css']
+  selector: 'app-word-snap',
+  templateUrl: './word-snap.component.html',
+  styleUrls: ['./word-snap.component.css']
 })
 
-export class PictionaryComponent {
+export class WordSnapComponent {
   @ViewChild('matchCanvas', { static: true }) canvas!: ElementRef<HTMLCanvasElement>;
 
   words: { text: string, disabled: boolean }[] = [];
   images: { url: string, word: string, disabled: boolean }[] = [];
 
-  time = 5;
+  time = 60;
   score = 0;
 
   gameState = false;
@@ -32,7 +32,7 @@ export class PictionaryComponent {
     private animalService: AnimalService,
     private timerService: TimerService,
     private scoreService: ScoreService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.loadAnimals();
@@ -45,7 +45,7 @@ export class PictionaryComponent {
   }
 
   ngOnDestroy() {
-    if (this.gameState){
+    if (this.gameState) {
       this.timerService.stopTimer();
     }
     this.scoreService.resetScore();
@@ -55,17 +55,17 @@ export class PictionaryComponent {
     this.animalService.getAnimals().subscribe(animals => {
       if (animals.length === 0) {
         // Fallback data if the HTTP request fails
-       
+
       }
-  
+
       animals = this.shuffleArray(animals);
       const selectedAnimals = animals.slice(0, 4);
-  
+
       this.words = this.shuffleArray(selectedAnimals.map(animal => ({ text: animal.word, disabled: false })));
       this.images = this.shuffleArray(selectedAnimals.map(animal => ({ ...animal, disabled: false })));
     });
   }
-  
+
   shuffleArray(array: any[]): any[] {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -90,17 +90,17 @@ export class PictionaryComponent {
       context.stroke();
     }
   }
-  
+
   getMousePosition(event: MouseEvent, type: string) {
     const canvasRect = this.canvas.nativeElement.getBoundingClientRect();
     const scaleX = this.canvas.nativeElement.width / canvasRect.width;
     const scaleY = this.canvas.nativeElement.height / canvasRect.height;
-  
+
     const clickPosition = {
       x: (event.clientX - canvasRect.left) * scaleX,
       y: (event.clientY - canvasRect.top) * scaleY
     };
-  
+
     if (type === 'word') {
       this.selectedWordPosition = clickPosition;
     } else {
@@ -134,7 +134,7 @@ export class PictionaryComponent {
       this.images.find(img => img.word === word)!.disabled = true;
       this.scoreService.addScore(10);
       this.correctSound.play();
-    } 
+    }
     //incorrect guess
     else {
       this.incorrectSound.play();

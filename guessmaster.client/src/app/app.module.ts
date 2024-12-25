@@ -7,15 +7,15 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { SelectionMenuComponent } from './selection-menu/selection-menu.component';
 
-import { GuessTheCountryComponent } from './guess-the-country/guess-the-country.component';
+import { FlagWhizComponent } from './flag-whiz/flag-whiz.component';
 
-import { PictionaryComponent } from './pictionary/pictionary.component';
-import { WordListComponent } from './pictionary/word-list/word-list.component';
-import { ImageListComponent } from './pictionary/image-list/image-list.component';
+import { WordSnapComponent } from './word-snap/word-snap.component';
+import { WordListComponent } from './word-snap/word-list/word-list.component';
+import { ImageListComponent } from './word-snap/image-list/image-list.component';
 
-import { CathphraseComponent } from './cathphrase/cathphrase.component';
+import { WordyWondersComponent } from './wordy-wonders/wordy-wonders.component';
 
-import { SpeedTextingComponent } from './speed-texting/speed-texting.component';
+import { TextBlitzComponent } from './text-blitz/text-blitz.component';
 
 
 import { TimerComponent } from './core-components/timer/timer.component';
@@ -28,14 +28,14 @@ import { AnimalService } from './services/animal-service.service';
   declarations: [
     AppComponent,
     SelectionMenuComponent,
-    GuessTheCountryComponent,
-    PictionaryComponent,
-    CathphraseComponent,
-    SpeedTextingComponent,
+    FlagWhizComponent,
+    WordSnapComponent,
+    TextBlitzComponent,
     WordListComponent,
     ImageListComponent,
     TimerComponent,
-    ScoreComponent
+    ScoreComponent,
+    WordyWondersComponent
   ],
   imports: [
     BrowserModule, HttpClientModule,

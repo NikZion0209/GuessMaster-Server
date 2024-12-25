@@ -2,17 +2,17 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 import { AppComponent } from './app.component';
-import { GuessTheCountryComponent } from './guess-the-country/guess-the-country.component';
-import { PictionaryComponent } from './pictionary/pictionary.component';
-import { CathphraseComponent } from './cathphrase/cathphrase.component';
-import { SpeedTextingComponent } from './speed-texting/speed-texting.component';
+import { FlagWhizComponent } from './flag-whiz/flag-whiz.component';
+import { WordSnapComponent } from './word-snap/word-snap.component';
+import { WordyWondersComponent } from './wordy-wonders/wordy-wonders.component';
+import { TextBlitzComponent } from './text-blitz/text-blitz.component';
 
 const routes: Routes = [
   { path: '', component: AppComponent, pathMatch: 'full' },
-  { path: 'catchphrase', component: CathphraseComponent, outlet: 'game' },
-  { path: 'guessTheCountry', component: GuessTheCountryComponent, outlet: 'game' },
-  { path: 'pictionary', component: PictionaryComponent, outlet: 'game' },
-  { path: 'speedTexting', component: SpeedTextingComponent, outlet: 'game' },
+  { path: 'wordyWonders', component: WordyWondersComponent, outlet: 'game' },
+  { path: 'flagWhiz', component: FlagWhizComponent, outlet: 'game' },
+  { path: 'wordSnap', component: WordSnapComponent, outlet: 'game' },
+  { path: 'textBlitz', component: TextBlitzComponent, outlet: 'game' },
   { path: '**', redirectTo: '', pathMatch: 'full' }
 ];
 

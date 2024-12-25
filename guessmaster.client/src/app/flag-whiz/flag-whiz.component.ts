@@ -2,11 +2,11 @@ import { Component, ViewChild } from '@angular/core';
 import { TimerComponent } from '../core-components/timer/timer.component';
 
 @Component({
-  selector: 'app-guess-the-country',
-  templateUrl: './guess-the-country.component.html',
-  styleUrl: './guess-the-country.component.css'
+  selector: 'app-flag-whiz',
+  templateUrl: './flag-whiz.component.html',
+  styleUrl: './flag-whiz.component.css'
 })
-export class GuessTheCountryComponent {
+export class FlagWhizComponent {
   @ViewChild(TimerComponent) timerComponent!: TimerComponent;
 
   time = 10;
