@@ -2,6 +2,7 @@ using GuessMaster.API.Middleware;
 using GuessMaster.Data.Data;
 using GuessMaster.Repository;
 using GuessMaster.Service;
+using GuessMaster.Service.Service;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,6 +25,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
 builder.Services.AddScoped<IServiceManager, ServiceManager>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddSignalR();
+
 // CORS configuration
 builder.Services.AddCors(options =>
 {
@@ -32,7 +35,8 @@ builder.Services.AddCors(options =>
         // Allow requests from the specified origin
         policy.WithOrigins("http://127.0.0.1:5500")  // Modify as per your frontend origin
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+        .AllowCredentials();
     });
 });
 
@@ -60,32 +64,21 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-//app.MapPost("/api/authenticate", async context =>
-//{
-//    var apiKey = context.Request.Headers["ApiKey"].ToString();
-
-//    if (apiKey == "sqYELam2PQ5pBLnJQonEynea3W73IRB8sI8vg77qEQI=")
-//    {
-//        var token = Guid.NewGuid().ToString(); // Example token
-//        context.Response.ContentType = "application/json";
-//        await context.Response.WriteAsync($"{{\"token\":\"{token}\"}}");
-//    }
-//    else
-//    {
-//        context.Response.StatusCode = 403;
-//        await context.Response.WriteAsync("Invalid API Key");
-//    }
-//});
 
 // Middleware pipeline
 app.UseSession();  // Enable session middleware
-app.UseWebSockets();
-
+// Enable WebSocket support
+var webSocketOptions = new WebSocketOptions
+{
+    KeepAliveInterval = TimeSpan.FromSeconds(120)
+};
+app.UseWebSockets(webSocketOptions);
+app.MapHub<ChatHub>("/chatHub");
 app.UseHttpsRedirection();
 app.UseCors("AllowSpecificOrigins"); // Enable CORS
 app.UseRouting();
 app.UseAuthorization();
-app.UseMiddleware<ApiKeyMiddleware>();  // If using custom API key validation
+//app.UseMiddleware<ApiKeyMiddleware>();  // If using custom API key validation
 
 app.MapControllers();
 

@@ -14,5 +14,6 @@ namespace GuessMaster.Service.Interface
         public void AddSocket(string id, WebSocket socket);
         public void RemoveSocket(string id);
         public Task BroadcastAsync(object data);
+
     }
 }

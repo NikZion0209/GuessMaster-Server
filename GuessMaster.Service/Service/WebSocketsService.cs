@@ -17,7 +17,7 @@ namespace GuessMaster.Service.Service
     public class WebSocketsService : IWebSocketsService
     {
         private readonly ConcurrentDictionary<string, WebSocket> _sockets = new();
-
+         private static List<WebSocket> clients = new List<WebSocket>();
         public void AddSocket(string id, WebSocket socket)
         {
             _sockets.TryAdd(id, socket);
@@ -45,7 +45,7 @@ namespace GuessMaster.Service.Service
                 {
                     await socket.SendAsync(new ArraySegment<byte>(buffer), WebSocketMessageType.Text, true, CancellationToken.None);
                 }
-                await Task.Delay(5000);
+                //await Task.Delay(5000);
             }
 
         }

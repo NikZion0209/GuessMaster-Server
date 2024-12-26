@@ -77,6 +77,24 @@ namespace GuessMaster.Repository.Repository
             }
         }
 
+        public async Task<Room> GetRoomDetailsByUserNameAsync(string UserName)
+        {
+            try
+            {
+                return await _context.Rooms
+                .Include(r => r.RoomAssignments)
+                .ThenInclude(ra => ra.User)
+                .Where(r => r.RoomAssignments.Any(ra => ra.User.Username == UserName))
+                .Where(r => r.RoomId == r.RoomId)
+                .FirstOrDefaultAsync();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         public bool RemoveRoom(Room room)
         {
             try

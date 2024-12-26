@@ -15,5 +15,6 @@ namespace GuessMaster.Repository.Interface
         bool RemoveRoom(Room room);
         Task<Room> AvailableRoomAsync();
         Task<Room> GetRoomDetailsByRoomIdAsync(int roomId);
+        Task<Room> GetRoomDetailsByUserNameAsync(string UserName);
     }
 }

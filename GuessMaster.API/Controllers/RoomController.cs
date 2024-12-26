@@ -21,9 +21,9 @@ namespace GuessMaster.API.Controllers
             _httpContextAccessor = httpContextAccessor;
         }
 
-        [Route("GetRoomDetails")]
+        [Route("GetRoomDetailsWebsock")]
         [HttpGet]
-        public async Task GetRoomDetails(int roomId)
+        public async Task GetRoomDetailsWebsock(int roomId)
         {
             Result result = new Result();
             try
@@ -41,6 +41,27 @@ namespace GuessMaster.API.Controllers
                 result.Data = ex.Message;
             }
             //return result;
+        }
+        [Route("GetRoomDetails")]
+        [HttpGet]
+        public async Task<Result> GetRoomDetails(int roomId)
+        {
+            Result result = new Result();
+            try
+            {
+                result.Header.ResultCode = "200";
+                result.Header.ResultDescription = "SUCCESS";
+                var httpContext = _httpContextAccessor.HttpContext;
+                result.Data = await _servicesManager.RoomService.GetLobbyDetailsViaw(roomId);
+                //await _servicesManager.RoomService.GetLobbyDetailsViaWebSocketAsync(roomId);
+            }
+            catch (Exception ex)
+            {
+                result.Header.ResultCode = "500";
+                result.Header.ResultDescription = "INTERNAL SERVER ERROR";
+                result.Data = ex.Message;
+            }
+            return result;
         }
     }
 }

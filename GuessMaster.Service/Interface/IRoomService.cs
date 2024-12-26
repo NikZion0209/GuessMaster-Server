@@ -18,5 +18,7 @@ namespace GuessMaster.Service.Interface
         public Task<Room> JoinOrCreateRoomAsync(int UserId);
         Task<RoomDetail> GetRoomDetailsByRoomIdAsync(int roomId);
         public Task GetLobbyDetailsViaWebSocketAsync(int roomId);
+        public Task<Room> GetLobbyDetailsViaw(int roomId);
+        public Task<Room> GetLobbyDetailsByUserName(string UserName);
     }
 }
