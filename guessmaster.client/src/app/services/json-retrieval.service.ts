@@ -5,12 +5,11 @@ import { Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
-export class AnimalService {
-  private jsonUrl = '../../assets/json/animals.json';
 
+export class JsonRetrievalService {
   constructor(private http: HttpClient) {}
 
-  getAnimals(): Observable<{ url: string, word: string }[]> {
-    return this.http.get<{ url: string, word: string }[]>(this.jsonUrl);
+  getObjects(jsonUrl : string): Observable<{ url: string, word: string }[]> {
+    return this.http.get<{ url: string, word: string }[]>(jsonUrl);
   }
 }

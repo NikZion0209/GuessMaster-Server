@@ -5,4 +5,5 @@
     justify-content: space-between; /* Space out the word list and image list */
     align-items: center; /* Center items vertically */
     width: 95vw;
+    flex-direction: column;
 }

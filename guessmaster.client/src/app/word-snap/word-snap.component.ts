@@ -1,6 +1,8 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
+
+import { UtilityService } from '../services/utility.service';
 import { TimerService } from '../services/timer.service';
-import { AnimalService } from '../services/animal-service.service';
+import { JsonRetrievalService } from '../services/json-retrieval.service';
 import { ScoreService } from '../services/score.service';
 
 @Component({
@@ -11,6 +13,8 @@ import { ScoreService } from '../services/score.service';
 
 export class WordSnapComponent {
   @ViewChild('matchCanvas', { static: true }) canvas!: ElementRef<HTMLCanvasElement>;
+
+  animalsJsonUrl = 'assets/json/animals.json';
 
   words: { text: string, disabled: boolean }[] = [];
   images: { url: string, word: string, disabled: boolean }[] = [];
@@ -29,9 +33,10 @@ export class WordSnapComponent {
   incorrectSound = new Audio('assets/sounds/incorrectGuess.mp3');
 
   constructor(
-    private animalService: AnimalService,
+    private jsonRetrievalService: JsonRetrievalService,
     private timerService: TimerService,
-    private scoreService: ScoreService
+    private scoreService: ScoreService,
+    private utilityService: UtilityService
   ) { }
 
   ngOnInit() {
@@ -41,7 +46,7 @@ export class WordSnapComponent {
 
   ngAfterViewInit() {
     this.gameState = true;
-    this.timerService.startTimer(this.time);
+    this.timerService.startTimerDecrementing(this.time);
   }
 
   ngOnDestroy() {
@@ -51,27 +56,15 @@ export class WordSnapComponent {
     this.scoreService.resetScore();
   }
 
-  loadAnimals() {
-    this.animalService.getAnimals().subscribe(animals => {
-      if (animals.length === 0) {
-        // Fallback data if the HTTP request fails
+  private loadAnimals() {
+    this.jsonRetrievalService.getObjects(this.animalsJsonUrl).subscribe(animals => {
 
-      }
-
-      animals = this.shuffleArray(animals);
+      animals = this.utilityService.shuffleArray(animals);
       const selectedAnimals = animals.slice(0, 4);
 
-      this.words = this.shuffleArray(selectedAnimals.map(animal => ({ text: animal.word, disabled: false })));
-      this.images = this.shuffleArray(selectedAnimals.map(animal => ({ ...animal, disabled: false })));
+      this.words = this.utilityService.shuffleArray(selectedAnimals.map(animal => ({ text: animal.word, disabled: false })));
+      this.images = this.utilityService.shuffleArray(selectedAnimals.map(animal => ({ ...animal, disabled: false })));
     });
-  }
-
-  shuffleArray(array: any[]): any[] {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
   }
 
   onTimeUp() {
@@ -126,7 +119,7 @@ export class WordSnapComponent {
     }
   }
 
-  checkGuess(word: string, image: { url: string, word: string, disabled: boolean }) {
+  private checkGuess(word: string, image: { url: string, word: string, disabled: boolean }) {
     //correct guess
     if (word === image.word && this.selectedWordPosition && this.selectedImagePosition) {
       this.drawLine(this.selectedWordPosition, this.selectedImagePosition);
@@ -140,6 +133,10 @@ export class WordSnapComponent {
       this.incorrectSound.play();
     }
 
+    this.resetSelections();
+  }
+
+  private resetSelections() {
     this.selectedImage = null;
     this.selectedWord = '';
     this.selectedWordPosition = null;
@@ -147,11 +144,11 @@ export class WordSnapComponent {
 
     if (this.words.every(w => w.disabled) && this.images.every(img => img.disabled)) {
       this.scoreService.addScore(50);
-      this.resetGame();
+      this.resetGameBoard();
     }
   }
 
-  resetGame() {
+  private resetGameBoard() {
     this.loadAnimals();
     const canvas = this.canvas.nativeElement;
     const context = canvas.getContext('2d');

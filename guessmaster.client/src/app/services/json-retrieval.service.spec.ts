@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { AnimalServiceService } from './animal-service.service';
+import { JsonRetrievalService } from './json-retrieval.service';
 
-describe('AnimalServiceService', () => {
-  let service: AnimalServiceService;
+describe('JsonRetrievalService', () => {
+  let service: JsonRetrievalService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(AnimalServiceService);
+    service = TestBed.inject(JsonRetrievalService);
   });
 
   it('should be created', () => {

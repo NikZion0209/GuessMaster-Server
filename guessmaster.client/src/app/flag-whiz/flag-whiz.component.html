@@ -3,5 +3,6 @@
     <app-score [score]="score"></app-score>
   </div>
   <div class="game-container">
-
+    <app-image-single [image]="currentFlag"></app-image-single>
+    <app-word-options [words]="words" (wordSelected)="onWordSelected($event.word)"></app-word-options>
   </div>

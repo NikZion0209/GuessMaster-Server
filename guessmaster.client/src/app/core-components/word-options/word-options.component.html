@@ -1,0 +1,5 @@
+<div class="word-options">
+    <button *ngFor="let word of words" (click)="selectWord(word)">
+      {{ word.text }}
+    </button>
+  </div>

@@ -17,7 +17,7 @@ export class TimerService {
 
   constructor(private audioService: AudioService) {}
 
-  startTimer(time: number) {
+  startTimerDecrementing(time: number) {
     this.audioService.addAudioInstance(this.sixtySecondCountdown);
     this.sixtySecondCountdown.play();
     this.timeSubject.next(time);
