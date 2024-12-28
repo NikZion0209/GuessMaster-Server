@@ -4,6 +4,7 @@ import { UtilityService } from '../services/utility.service';
 import { TimerService } from '../services/timer.service';
 import { JsonRetrievalService } from '../services/json-retrieval.service';
 import { ScoreService } from '../services/score.service';
+import { AudioService } from '../services/audio.service';
 
 @Component({
   selector: 'app-word-snap',
@@ -29,14 +30,12 @@ export class WordSnapComponent {
   selectedWordPosition: { x: number, y: number } | null = null;
   selectedImagePosition: { x: number, y: number } | null = null;
 
-  correctSound = new Audio('assets/sounds/correctGuess.mp3');
-  incorrectSound = new Audio('assets/sounds/incorrectGuess.mp3');
-
   constructor(
     private jsonRetrievalService: JsonRetrievalService,
     private timerService: TimerService,
     private scoreService: ScoreService,
-    private utilityService: UtilityService
+    private utilityService: UtilityService,
+    private audioService: AudioService
   ) { }
 
   ngOnInit() {
@@ -126,11 +125,11 @@ export class WordSnapComponent {
       this.words.find(w => w.text === word)!.disabled = true;
       this.images.find(img => img.word === word)!.disabled = true;
       this.scoreService.addScore(10);
-      this.correctSound.play();
+      this.audioService.playCorrectSound();
     }
     //incorrect guess
     else {
-      this.incorrectSound.play();
+      this.audioService.playIncorrectSound();
     }
 
     this.resetSelections();

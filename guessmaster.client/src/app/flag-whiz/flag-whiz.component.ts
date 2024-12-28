@@ -3,6 +3,7 @@ import { TimerService } from '../services/timer.service';
 import { JsonRetrievalService } from '../services/json-retrieval.service';
 import { ScoreService } from '../services/score.service';
 import { UtilityService } from '../services/utility.service';
+import { AudioService } from '../services/audio.service';
 
 @Component({
   selector: 'app-flag-whiz',
@@ -13,7 +14,7 @@ import { UtilityService } from '../services/utility.service';
 export class FlagWhizComponent {
   flagsJsonUrl = 'assets/json/flags.json';
 
-  time = 60;
+  time = 20;
   score = 0;
   gameState = false;
 
@@ -24,14 +25,12 @@ export class FlagWhizComponent {
   currentFlag: { url: string, word: string } | null = null;
   currentIndex = 0;
 
-  correctSound = new Audio('assets/sounds/correctGuess.mp3');
-  incorrectSound = new Audio('assets/sounds/incorrectGuess.mp3');
-
   constructor(
     private jsonRetrievalService: JsonRetrievalService,
     private timerService: TimerService,
     private scoreService: ScoreService,
-    private utilityService: UtilityService
+    private utilityService: UtilityService,
+    private audioService: AudioService
   ) { }
 
   ngOnInit() {
@@ -77,11 +76,11 @@ export class FlagWhizComponent {
 
   private checkAnswer() {
     if (this.currentFlag && this.selectedWord === this.currentFlag.word) {
-      this.correctSound.play();
+      this.audioService.playCorrectSound();
       this.scoreService.addScore(10);
       this.nextFlag();
     } else {
-      this.incorrectSound.play();
+      this.audioService.playIncorrectSound();
     }
   }
 

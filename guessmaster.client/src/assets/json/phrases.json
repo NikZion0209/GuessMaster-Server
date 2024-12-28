@@ -1,0 +1,42 @@
+[
+    {
+        "phrase": "The quick brown fox jumps over the lazy dog",
+        "category": "Phrase"
+    },
+    {
+        "phrase": "The early bird catches the worm",
+        "category": "Phrase"
+    },
+    {
+        "phrase": "The pen is mightier than the sword",
+        "category": "Phrase"
+    },
+    {
+        "phrase": "The grass is always greener on the other side",
+        "category": "Phrase"
+    },
+    {
+        "phrase": "The apple doesn't fall far from the tree",
+        "category": "Phrase"
+    },
+    {
+        "phrase": "The best of both worlds",
+        "category": "Phrase"
+    },
+    {
+        "phrase": "The ball is in your court",
+        "category": "Phrase"
+    },
+    {
+        "phrase": "The whole nine yards",
+        "category": "Phrase"
+    },
+    {
+        "phrase": "The whole kit and caboodle",
+        "category": "Phrase"
+    },
+    {
+        "phrase": "The whole shebang",
+        "category": "Phrase"
+    }
+]
