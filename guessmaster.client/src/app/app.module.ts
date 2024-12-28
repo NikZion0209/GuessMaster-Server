@@ -7,41 +7,42 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { SelectionMenuComponent } from './selection-menu/selection-menu.component';
 
-import { GuessTheCountryComponent } from './guess-the-country/guess-the-country.component';
+import { FlagWhizComponent } from './flag-whiz/flag-whiz.component';
+import { ImageSingleComponent } from './core-components/image-single/image-single.component';
 
-import { PictionaryComponent } from './pictionary/pictionary.component';
-import { WordListComponent } from './pictionary/word-list/word-list.component';
-import { ImageListComponent } from './pictionary/image-list/image-list.component';
+import { WordSnapComponent } from './word-snap/word-snap.component';
+import { WordListComponent } from './core-components/word-list/word-list.component';
+import { ImageListComponent } from './core-components/image-list/image-list.component';
 
-import { CathphraseComponent } from './cathphrase/cathphrase.component';
+import { WordyWondersComponent } from './wordy-wonders/wordy-wonders.component';
 
-import { SpeedTextingComponent } from './speed-texting/speed-texting.component';
+import { TextBlitzComponent } from './text-blitz/text-blitz.component';
 
 
 import { TimerComponent } from './core-components/timer/timer.component';
 import { ScoreComponent } from './core-components/score/score.component';
-
-//Services
-import { AnimalService } from './services/animal-service.service';
+import { WordOptionsComponent } from './core-components/word-options/word-options.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     SelectionMenuComponent,
-    GuessTheCountryComponent,
-    PictionaryComponent,
-    CathphraseComponent,
-    SpeedTextingComponent,
+    FlagWhizComponent,
+    WordSnapComponent,
+    TextBlitzComponent,
     WordListComponent,
     ImageListComponent,
     TimerComponent,
-    ScoreComponent
+    ScoreComponent,
+    WordyWondersComponent,
+    ImageSingleComponent,
+    WordOptionsComponent
   ],
   imports: [
     BrowserModule, HttpClientModule,
     AppRoutingModule
   ],
-  providers: [AnimalService],
+  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
