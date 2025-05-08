@@ -1,4 +1,4 @@
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
@@ -23,26 +23,20 @@ import { TimerComponent } from './core-components/timer/timer.component';
 import { ScoreComponent } from './core-components/score/score.component';
 import { WordOptionsComponent } from './core-components/word-options/word-options.component';
 
-@NgModule({
-  declarations: [
-    AppComponent,
-    SelectionMenuComponent,
-    FlagWhizComponent,
-    WordSnapComponent,
-    TextBlitzComponent,
-    WordListComponent,
-    ImageListComponent,
-    TimerComponent,
-    ScoreComponent,
-    WordyWondersComponent,
-    ImageSingleComponent,
-    WordOptionsComponent
-  ],
-  imports: [
-    BrowserModule, HttpClientModule,
-    AppRoutingModule
-  ],
-  providers: [],
-  bootstrap: [AppComponent]
-})
+@NgModule({ declarations: [
+        AppComponent,
+        SelectionMenuComponent,
+        FlagWhizComponent,
+        WordSnapComponent,
+        TextBlitzComponent,
+        WordListComponent,
+        ImageListComponent,
+        TimerComponent,
+        ScoreComponent,
+        WordyWondersComponent,
+        ImageSingleComponent,
+        WordOptionsComponent
+    ],
+    bootstrap: [AppComponent], imports: [BrowserModule,
+        AppRoutingModule], providers: [provideHttpClient(withInterceptorsFromDi())] })
 export class AppModule { }
