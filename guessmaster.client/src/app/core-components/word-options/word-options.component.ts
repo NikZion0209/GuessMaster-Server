@@ -1,9 +1,10 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
-  selector: 'app-word-options',
-  templateUrl: './word-options.component.html',
-  styleUrl: './word-options.component.css'
+    selector: 'app-word-options',
+    templateUrl: './word-options.component.html',
+    styleUrl: './word-options.component.css',
+    standalone: false
 })
 export class WordOptionsComponent {
   @Input() words: { text: string }[] = [];

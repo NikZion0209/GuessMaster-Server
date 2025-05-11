@@ -6,9 +6,10 @@ import { UtilityService } from '../services/utility.service';
 import { AudioService } from '../services/audio.service';
 
 @Component({
-  selector: 'app-flag-whiz',
-  templateUrl: './flag-whiz.component.html',
-  styleUrl: './flag-whiz.component.css'
+    selector: 'app-flag-whiz',
+    templateUrl: './flag-whiz.component.html',
+    styleUrl: './flag-whiz.component.css',
+    standalone: false
 })
 
 export class FlagWhizComponent {

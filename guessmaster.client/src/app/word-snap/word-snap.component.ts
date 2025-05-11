@@ -7,9 +7,10 @@ import { ScoreService } from '../services/score.service';
 import { AudioService } from '../services/audio.service';
 
 @Component({
-  selector: 'app-word-snap',
-  templateUrl: './word-snap.component.html',
-  styleUrls: ['./word-snap.component.css']
+    selector: 'app-word-snap',
+    templateUrl: './word-snap.component.html',
+    styleUrls: ['./word-snap.component.css'],
+    standalone: false
 })
 
 export class WordSnapComponent {

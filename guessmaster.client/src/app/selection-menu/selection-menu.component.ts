@@ -6,9 +6,10 @@ import { AudioService } from '../services/audio.service';
 import { TimerService } from '../services/timer.service';
 
 @Component({
-  selector: 'selection-menu',
-  templateUrl: './selection-menu.component.html',
-  styleUrls: ['./selection-menu.component.css']
+    selector: 'selection-menu',
+    templateUrl: './selection-menu.component.html',
+    styleUrls: ['./selection-menu.component.css'],
+    standalone: false
 })
 
 export class SelectionMenuComponent implements OnInit {

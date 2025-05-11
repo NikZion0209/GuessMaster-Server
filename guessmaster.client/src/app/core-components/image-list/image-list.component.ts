@@ -1,9 +1,10 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
-  selector: 'app-image-list',
-  templateUrl: './image-list.component.html',
-  styleUrls: ['./image-list.component.css']
+    selector: 'app-image-list',
+    templateUrl: './image-list.component.html',
+    styleUrls: ['./image-list.component.css'],
+    standalone: false
 })
 
 export class ImageListComponent {

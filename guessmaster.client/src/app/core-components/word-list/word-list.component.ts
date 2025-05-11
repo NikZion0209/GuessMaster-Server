@@ -1,9 +1,10 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
-  selector: 'app-word-list',
-  templateUrl: './word-list.component.html',
-  styleUrls: ['./word-list.component.css']
+    selector: 'app-word-list',
+    templateUrl: './word-list.component.html',
+    styleUrls: ['./word-list.component.css'],
+    standalone: false
 })
 
 export class WordListComponent  {
