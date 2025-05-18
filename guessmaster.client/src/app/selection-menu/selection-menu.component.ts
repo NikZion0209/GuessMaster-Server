@@ -35,4 +35,17 @@ export class SelectionMenuComponent implements OnInit {
       }
     });
   }
+
+  navItems = [
+  { label: 'Wordy Wonders', route: [{ outlets: { game: ['wordyWonders'] } }] },
+  { label: 'Flag Whiz', route: [{ outlets: { game: ['flagWhiz'] } }] },
+  { label: 'Word Snap', route: [{ outlets: { game: ['wordSnap'] } }] },
+  { label: 'Text Blitz', route: [{ outlets: { game: ['textBlitz'] } }] }
+];
+
+wrapLetters(text: string): string {
+  return text.split('').map(char =>
+    char === ' ' ? '&nbsp;' : `<span>${char}</span>`
+  ).join('');
+}
 }

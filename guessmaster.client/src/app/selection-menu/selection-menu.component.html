@@ -1,12 +1,23 @@
-﻿<div class="navigation">
-    <ng-container *ngIf="showNavigationBar">
-        <div class="nav-block" [routerLink]="[{ outlets: { game: ['wordyWonders'] } }]">Wordy Wonders</div>
-        <div class="nav-block" [routerLink]="[{ outlets: { game: ['flagWhiz'] } }]">Flag Whiz</div>
-        <div class="nav-block" [routerLink]="[{ outlets: { game: ['wordSnap'] } }]">Word Snap</div>
-        <div class="nav-block" [routerLink]="[{ outlets: { game: ['textBlitz'] } }]">Text Blitz</div>
+﻿<div class="navigation-wrapper" [ngStyle]="showNavigationBar ? { height: '70vh' } : {}">
+    <div class="navigation-details" [ngStyle]="!showNavigationBar ? { display: 'none'} : {}"></div>
+    <div class="navigation">
+        
+        <ng-container *ngIf="showNavigationBar">
+            <div class="logo">
+                <img src="../../assets/common/GuessMaster-logo.png" alt="Logo" />
+            </div>
 
-    </ng-container>
-    <ng-container *ngIf="showReturnButton">
-        <div class="nav-block" routerLink="/">Return to menu</div>
-    </ng-container>
+            <div class="nav-container">
+                <div
+                    class="nav-block"
+                    *ngFor="let item of navItems"
+                    [routerLink]="item.route"
+                    [innerHTML]="wrapLetters(item.label)">
+                </div>
+            </div>
+        </ng-container>
+        <ng-container *ngIf="showReturnButton">
+            <div class="nav-block" routerLink="/">Return to menu</div>
+        </ng-container>
+    </div>
 </div>
