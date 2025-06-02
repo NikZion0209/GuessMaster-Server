@@ -24,7 +24,7 @@ namespace GuessMaster.API.Controllers
             {
                 result.Header.ResultCode = "200";
                 result.Header.ResultDescription = "SUCCESS";
-                result.Data = await _serviceManager.PlayerService.AddPlayerOrAssignmentRoomAsync(user);
+                result.Data = _serviceManager.PlayerService.AddPlayer(user);
             }
             catch (Exception ex)
             {

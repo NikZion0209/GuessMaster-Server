@@ -11,6 +11,5 @@ namespace GuessMaster.Service
     public interface IServiceManager
     {
         IPlayerService PlayerService { get; }
-        IRoomService RoomService { get; }
     }
 }

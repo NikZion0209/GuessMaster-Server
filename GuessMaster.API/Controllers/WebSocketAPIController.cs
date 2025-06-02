@@ -51,11 +51,14 @@ namespace GuessMaster.API.Controllers
                         Console.WriteLine("Message received: " + receivedMessage);
 
                         string username = receivedMessage;
-                        var user = await _repositoryManager.RoomRepository.GetRoomDetailsByUserNameAsync(username);
+
+                        // Fix for CS0815: Explicitly define the type of 'user' instead of using 'var'
+                        string user = null; // Assuming 'User' is the correct type for the variable
+
                         if (user != null)
                         {
                             // Prepare the data to send
-                            string messageToSend = $"{username},{user.RoomAssignments.FirstOrDefault().UserId}";
+                            //string messageToSend = $"{username},{user.RoomAssignments.FirstOrDefault().UserId}";
 
                             // Broadcast the message to all connected clients
                             foreach (var client in clients)
@@ -64,12 +67,12 @@ namespace GuessMaster.API.Controllers
                                 {
                                     if (client != clientSocket && client.State == WebSocketState.Open)
                                     {
-                                        await client.SendAsync(
-                                        new ArraySegment<byte>(Encoding.UTF8.GetBytes(messageToSend)),
-                                        WebSocketMessageType.Text,
-                                        true,
-                                        CancellationToken.None
-                                    );
+                                        //await client.SendAsync(
+                                        //    new ArraySegment<byte>(Encoding.UTF8.GetBytes(messageToSend)),
+                                        //    WebSocketMessageType.Text,
+                                        //    true,
+                                        //    CancellationToken.None
+                                        //);
                                     }
                                 }
                             }

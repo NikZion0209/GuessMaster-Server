@@ -33,27 +33,6 @@ namespace GuessMaster.Service.Service
             }
         }
 
-        public async Task<RoomAssignment> AddPlayerOrAssignmentRoomAsync(User user)
-        {
-            try
-            {
-                var player = _repositoryManager.PlayerRepository.AddPlayer(user);
-                RoomService roomService = new RoomService(_repositoryManager, _httpContextAccessor);
-                var room = await roomService.JoinOrCreateRoomAsync(player.UserId);
-                var roomAssignment = new RoomAssignment()
-                {
-                    RoomId = room.RoomId,
-                    UserId = user.UserId
-                };
-                return roomAssignment;
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
         public IEnumerable<User> GetAllPlayers()
         {
             try

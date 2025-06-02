@@ -12,6 +12,5 @@ namespace GuessMaster.Service.Interface
         User AddPlayer(User user);
         bool RemovePlayer(User user);
         IEnumerable<User> GetAllPlayers();
-        Task<RoomAssignment> AddPlayerOrAssignmentRoomAsync(User user);
     }
 }
