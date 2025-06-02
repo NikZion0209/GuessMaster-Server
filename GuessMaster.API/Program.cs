@@ -33,10 +33,9 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowSpecificOrigins", policy =>
     {
         // Allow requests from the specified origin
-        policy.WithOrigins("http://127.0.0.1:5500")  // Modify as per your frontend origin
+        policy.AllowAnyOrigin()  // Modify as per your frontend origin
               .AllowAnyHeader()
-              .AllowAnyMethod()
-        .AllowCredentials();
+              .AllowAnyMethod();
     });
 });
 
