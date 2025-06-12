@@ -52,7 +52,7 @@ public partial class ApplicationDbContext : DbContext
             entity.HasKey(e => e.SessionId);
 
             entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("(GETDATE())")
                 .HasColumnType("datetime");
         });
 
@@ -61,10 +61,12 @@ public partial class ApplicationDbContext : DbContext
             entity.HasKey(e => e.UserId);
 
             entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("(GETDATE())")
                 .HasColumnType("datetime");
 
             entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(GETDATE())")
+                .ValueGeneratedOnAddOrUpdate()
                 .HasColumnType("datetime");
 
             entity.Property(e => e.Username).HasMaxLength(100);
