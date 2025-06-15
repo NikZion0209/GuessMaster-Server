@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using GuessMaster.Data.Models;
+using GuessMaster.Model.ViewModel;
+using GuessMaster.Service;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Text;
@@ -9,44 +12,30 @@ namespace GuessMaster.API.Controllers
     [ApiController]
     public class SessionController : ControllerBase
     {
-        [Route("SetSession")]
-        [HttpPost]
-        public IActionResult SetSessionValue(string Key, string Value)
+        private readonly IServiceManager _serviceManager;
+        public SessionController(IServiceManager serviceManager)
         {
-            // Store a simple string value in a cookie
-            Response.Cookies.Append(Key, Value, new CookieOptions
-            {
-                // Set cookie expiration (optional)
-                Expires = DateTime.UtcNow.AddDays(7),  // Cookie expires in 7 days
-                HttpOnly = true,  // Makes the cookie accessible only through HTTP(S) requests
-                Secure = true,    // Ensure cookie is sent over HTTPS
-                SameSite = SameSiteMode.Strict // Optional: Prevents the cookie from being sent in cross-site requests
-            });
-            return Ok();
+            _serviceManager = serviceManager;
         }
-        [Route("SetSessionObject")]
-        [HttpPost]
-        public IActionResult SetObject(string key, object value)
-        {
-            var serializedObject = JsonConvert.SerializeObject(value);
-            var bytes = Encoding.UTF8.GetBytes(serializedObject);
-            HttpContext.Session.Set(key, bytes);
-            return Ok();
-        }
-        [Route("GetObject")]
+
+        [Route("getAvailableSessions")]
         [HttpGet]
-        public object GetObject<T>(string key)
+        public async Task<Result> GetAvailableSessions([FromQuery] int gameType)
         {
-            object myObject = new object();
-
-            var bytes = HttpContext.Session.Get(key);
-            if (bytes != null)
+            Result result = new Result();
+            try
             {
-                var serializedObject = Encoding.UTF8.GetString(bytes);
-                myObject = JsonConvert.DeserializeObject<T>(serializedObject);
+                result.Header.ResultCode = "200";
+                result.Header.ResultDescription = "SUCCESS";
+                result.Data = _serviceManager.GameService.GetAvailableGameSessions(gameType);
             }
-
-            return myObject;
+            catch (Exception ex)
+            {
+                result.Header.ResultCode = "500";
+                result.Header.ResultDescription = "INTERNAL SERVER ERROR";
+                result.Data = ex.Message;
+            }
+            return result;
         }
     }
 }
