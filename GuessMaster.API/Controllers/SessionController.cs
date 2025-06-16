@@ -35,7 +35,29 @@ namespace GuessMaster.API.Controllers
                 result.Header.ResultDescription = "INTERNAL SERVER ERROR";
                 result.Data = ex.Message;
             }
-            return result;
+            return await Task.FromResult(result);
+        }
+
+        [Route("addUserToSession")]
+        [HttpPost]
+        public async Task<Result> AddUserToSession([FromQuery] int sessionId, int userId)
+        {
+            Result result = new Result();
+            try
+            {
+                Console.WriteLine($"Attempting to add user with ID {userId} to session with ID {sessionId}.");
+                _serviceManager.GameService.AddUserToSession(sessionId, userId);
+                
+                result.Header.ResultCode = "200";
+                result.Header.ResultDescription = "SUCCESS";
+            }
+            catch (Exception ex)
+            {
+                result.Header.ResultCode = "500";
+                result.Header.ResultDescription = "INTERNAL SERVER ERROR";
+                result.Data = ex.Message;
+            }
+            return await Task.FromResult(result);
         }
     }
 }

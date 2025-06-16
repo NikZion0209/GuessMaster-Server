@@ -51,6 +51,9 @@ public partial class ApplicationDbContext : DbContext
         {
             entity.HasKey(e => e.SessionId);
 
+            entity.Property(e => e.SessionId)
+                .ValueGeneratedOnAdd();
+
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(GETDATE())")
                 .HasColumnType("datetime");

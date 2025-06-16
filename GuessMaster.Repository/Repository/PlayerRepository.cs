@@ -57,5 +57,17 @@ namespace GuessMaster.Repository.Repository
                 return false;
             }
         }
+
+        public User GetUserById(int userId)
+        {
+            try
+            {
+                return _context.Users.Find(userId) ?? throw new Exception("User not found.");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while retrieving the user.", ex);
+            }
+        }
     }
 }
