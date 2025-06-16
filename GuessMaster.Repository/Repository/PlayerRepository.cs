@@ -69,5 +69,18 @@ namespace GuessMaster.Repository.Repository
                 throw new Exception("An error occurred while retrieving the user.", ex);
             }
         }
+
+        public void UpdateUser(User user)
+        {
+            try
+            {
+                _context.Users.Update(user);
+                _context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while updating the user.", ex);
+            }
+        }
     }
 }

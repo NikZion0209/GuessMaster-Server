@@ -13,5 +13,6 @@ namespace GuessMaster.Repository.Interface
         bool RemovePlayer(User user);
         IEnumerable<User> GetAllPlayers();
         User GetUserById(int userId);
+        void UpdateUser(User user);
     }
 }

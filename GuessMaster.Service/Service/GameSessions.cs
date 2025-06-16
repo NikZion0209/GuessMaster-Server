@@ -1,4 +1,5 @@
 ﻿using GuessMaster.Data.Models;
+using GuessMaster.Model.Constants;
 using GuessMaster.Repository;
 using GuessMaster.Service.Interface;
 using System;
@@ -49,7 +50,7 @@ namespace GuessMaster.Service.Service
                 {
                     throw new Exception("Session is full.");
                 }
-                Console.WriteLine($"Adding user with ID {userId} to session with ID {sessionId}.");
+
                 User joiningUser = _repositoryManager.PlayerRepository.GetUserById(userId);
                 if (joiningUser == null)
                 {
@@ -58,13 +59,13 @@ namespace GuessMaster.Service.Service
 
                 session.Users.Add(joiningUser);
                 session.PlayerCount++;
-                if (session.PlayerCount >= session.MaxPlayers)
+                if (session.PlayerCount == DoodleChamp.MaxPlayers)
                 {
                     session.IsFull = true;
                 }
-                Console.WriteLine($"User {joiningUser.Username} added to session {sessionId}.");
+                
                 _repositoryManager.GameSessionRepository.UpdateSession(session);
-                Console.WriteLine($"Session {sessionId} updated successfully.");
+                Console.WriteLine($"User {joiningUser.Username} added to session {sessionId}.");
             }
             catch (Exception ex)
             {
