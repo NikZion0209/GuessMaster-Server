@@ -33,8 +33,9 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowSpecificOrigins", policy =>
     {
         // Allow requests from the specified origin
-        policy.AllowAnyOrigin()  // Modify as per your frontend origin
+        policy.WithOrigins(builder.Configuration["ClientUrl"])  // Modify as per your frontend origin
               .AllowAnyHeader()
+              .AllowCredentials()
               .AllowAnyMethod();
     });
 });
@@ -77,7 +78,6 @@ app.UseHttpsRedirection();
 app.UseCors("AllowSpecificOrigins"); // Enable CORS
 app.UseRouting();
 app.UseAuthorization();
-//app.UseMiddleware<ApiKeyMiddleware>();  // If using custom API key validation
 
 app.MapControllers();
 
