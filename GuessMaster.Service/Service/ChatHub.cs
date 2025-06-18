@@ -11,10 +11,11 @@ namespace GuessMaster.Service.Service
     public class ChatHub : Hub
     {
         // Method for joining a room
-        public async Task JoinRoom(string roomId)
+        public async Task JoinRoom(int sessionId)
         {
-            await Groups.AddToGroupAsync(Context.ConnectionId, roomId);
-            await Clients.Group(roomId).SendAsync("RoomUpdate", $"{Context.ConnectionId} joined room {roomId}");
+            Console.WriteLine($"{Context.ConnectionId} is joining room {sessionId}");
+            await Groups.AddToGroupAsync(Context.ConnectionId, sessionId.ToString());
+            await Clients.Group(sessionId.ToString()).SendAsync("RoomUpdate", $"{Context.ConnectionId} joined room {sessionId}");
         }
 
         // Method for leaving a room
@@ -25,9 +26,9 @@ namespace GuessMaster.Service.Service
         }
 
         // Method for broadcasting messages to the room
-        public async Task SendRoomMessage(string roomId, string message)
+        public async Task SendRoomMessage(int sessionId, string message)
         {
-            await Clients.Group(roomId).SendAsync("RoomMessage", message);
+            await Clients.Group(sessionId.ToString()).SendAsync("RoomMessage", message);
         }
     }
 }
