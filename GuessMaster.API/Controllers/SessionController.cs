@@ -47,7 +47,36 @@ namespace GuessMaster.API.Controllers
             {
                 Console.WriteLine($"Attempting to add user with ID {userId} to session with ID {sessionId}.");
                 _serviceManager.GameService.AddUserToSession(sessionId, userId);
-                
+
+                // Read existing UserInfo cookie
+                var userInfoJson = Request.Cookies["UserInfo"];
+                dynamic userInfo;
+                if (!string.IsNullOrEmpty(userInfoJson))
+                {
+                    userInfo = JsonConvert.DeserializeObject<dynamic>(userInfoJson);
+                }
+                else
+                {
+                    userInfo = new System.Dynamic.ExpandoObject();
+                }
+
+                // Set or update SessionId
+                userInfo.SessionId = sessionId;
+
+                // Write back the updated cookie
+                var updatedUserInfoJson = JsonConvert.SerializeObject(userInfo);
+                Response.Cookies.Append(
+                    "UserInfo",
+                    updatedUserInfoJson,
+                    new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = true, // Set to true in production
+                        SameSite = SameSiteMode.Strict,
+                        Expires = DateTimeOffset.UtcNow.AddDays(1)
+                    }
+                );
+
                 result.Header.ResultCode = "200";
                 result.Header.ResultDescription = "SUCCESS";
             }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using GuessMaster.Model.Models;
+using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -10,12 +11,34 @@ namespace GuessMaster.Service.Service
 {
     public class ChatHub : Hub
     {
+        private static readonly ConcurrentDictionary<int, List<ConnectedUser>> SessionUsers = new();
+
         // Method for joining a room
-        public async Task JoinRoom(int sessionId)
+        public async Task JoinRoom(int sessionId, string userName, string avatarUrl)
         {
-            Console.WriteLine($"{Context.ConnectionId} is joining room {sessionId}");
+            Console.WriteLine($"{userName} is joining room {sessionId}");
             await Groups.AddToGroupAsync(Context.ConnectionId, sessionId.ToString());
-            await Clients.Group(sessionId.ToString()).SendAsync("RoomUpdate", $"{Context.ConnectionId} joined room {sessionId}");
+            await Clients.Group(sessionId.ToString()).SendAsync("RoomMessage", $"{userName} has joined the room");
+            var user = new ConnectedUser
+            {
+                ConnectionId = Context.ConnectionId,
+                Username = userName,
+                AvatarUrl = avatarUrl
+            };
+
+            SessionUsers.AddOrUpdate(
+                sessionId,
+                _ => new List<ConnectedUser> { user },
+                (_, list) =>
+                {
+                    lock (list)
+                    {
+                        if (!list.Any(u => u.ConnectionId == user.ConnectionId))
+                            list.Add(user);
+                    }
+                    return list;
+                }
+            );
         }
 
         // Method for leaving a room
@@ -26,9 +49,9 @@ namespace GuessMaster.Service.Service
         }
 
         // Method for broadcasting messages to the room
-        public async Task SendRoomMessage(int sessionId, string message)
+        public async Task SendRoomMessage(int sessionId, string userName, string message)
         {
-            await Clients.Group(sessionId.ToString()).SendAsync("RoomMessage", message);
+            await Clients.Group(sessionId.ToString()).SendAsync("RoomMessage", $"{userName} : {message}");
         }
     }
 }

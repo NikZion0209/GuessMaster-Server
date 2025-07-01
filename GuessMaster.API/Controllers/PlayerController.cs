@@ -22,9 +22,28 @@ namespace GuessMaster.API.Controllers
             Result result = new Result();
             try
             {
+                var savedUser = _serviceManager.PlayerService.AddPlayer(user);
+
+                // Serialize minimal user info (e.g., UserId and Username)
+                var userInfo = new { savedUser.UserId, savedUser.Username, savedUser.AvatarUrl };
+                var userInfoJson = System.Text.Json.JsonSerializer.Serialize(userInfo);
+
+                // Set the cookie (HttpOnly, Secure, SameSite)
+                Response.Cookies.Append(
+                    "UserInfo",
+                    userInfoJson,
+                    new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = true, // Set to true in production (requires HTTPS)
+                        SameSite = SameSiteMode.Strict,
+                        Expires = DateTimeOffset.UtcNow.AddDays(1)
+                    }
+                );
+
                 result.Header.ResultCode = "200";
                 result.Header.ResultDescription = "SUCCESS";
-                result.Data = _serviceManager.PlayerService.AddPlayer(user);
+                result.Data = savedUser;
             }
             catch (Exception ex)
             {
@@ -32,7 +51,7 @@ namespace GuessMaster.API.Controllers
                 result.Header.ResultDescription = "INTERNAL SERVER ERROR";
                 result.Data = ex.Message;
             }
-            return result;
+            return await Task.FromResult(result);
         }
     }
 }
