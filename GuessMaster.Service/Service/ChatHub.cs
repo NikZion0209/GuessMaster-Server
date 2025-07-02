@@ -53,5 +53,18 @@ namespace GuessMaster.Service.Service
         {
             await Clients.Group(sessionId.ToString()).SendAsync("RoomMessage", $"{userName} : {message}");
         }
+
+        public async Task GetPlayersInSession(int sessionId)
+        {
+            Console.WriteLine("Hit");
+            if (SessionUsers.TryGetValue(sessionId, out var users))
+            {
+                await Clients.Caller.SendAsync("PlayersInSession", users);
+            }
+            else
+            {
+                await Clients.Caller.SendAsync("PlayersInSession", new List<ConnectedUser>());
+            }
+        }
     }
 }
