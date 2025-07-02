@@ -39,6 +39,8 @@ namespace GuessMaster.Service.Service
                     return list;
                 }
             );
+
+            await GetPlayersInSession(sessionId);
         }
 
         // Method for leaving a room
@@ -56,14 +58,13 @@ namespace GuessMaster.Service.Service
 
         public async Task GetPlayersInSession(int sessionId)
         {
-            Console.WriteLine("Hit");
             if (SessionUsers.TryGetValue(sessionId, out var users))
             {
-                await Clients.Caller.SendAsync("PlayersInSession", users);
+                await Clients.Group(sessionId.ToString()).SendAsync("PlayersInSession", users);
             }
             else
             {
-                await Clients.Caller.SendAsync("PlayersInSession", new List<ConnectedUser>());
+                Console.Error.WriteLine($"Error retrieving users for session {sessionId}");
             }
         }
     }
