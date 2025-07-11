@@ -67,5 +67,10 @@ namespace GuessMaster.Service.Service
                 Console.Error.WriteLine($"Error retrieving users for session {sessionId}");
             }
         }
+
+        public async Task SendDrawing(int sessionId, string drawingData)
+        {
+            await Clients.Group(sessionId.ToString()).SendAsync("RecieveDrawing", drawingData);
+        }
     }
 }
