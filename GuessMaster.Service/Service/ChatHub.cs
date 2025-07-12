@@ -6,11 +6,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GuessMaster.Model.Constants;
 
 namespace GuessMaster.Service.Service
 {
     public class ChatHub : Hub
     {
+        public static event Action<int, string>? UserLeftRoom;
+        public static event Action<int, List<ConnectedUser>>? UserJoinedRoom;
+
         private static readonly ConcurrentDictionary<int, List<ConnectedUser>> SessionUsers = new();
 
         // Method for joining a room
@@ -41,13 +45,20 @@ namespace GuessMaster.Service.Service
             );
 
             await GetPlayersInSession(sessionId);
+
+            if (SessionUsers.TryGetValue(sessionId, out var connectedUsers))
+            {
+                UserJoinedRoom?.Invoke(sessionId, connectedUsers);
+            }
         }
 
         // Method for leaving a room
-        public async Task LeaveRoom(string roomId)
+        public async Task LeaveRoom(int sessionId)
         {
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, roomId);
-            await Clients.Group(roomId).SendAsync("RoomUpdate", $"{Context.ConnectionId} left room {roomId}");
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, sessionId.ToString());
+            await Clients.Group(sessionId.ToString()).SendAsync("RoomUpdate", $"{Context.ConnectionId} left room {sessionId}");
+
+            UserLeftRoom?.Invoke(sessionId, Context.ConnectionId);
         }
 
         // Method for broadcasting messages to the room

@@ -17,14 +17,20 @@ namespace GuessMaster.Service
     {
         private readonly Lazy<IPlayerService> _lazyPlayerService;
         private readonly Lazy<IGameSessions> _lazyGameService;
+        private readonly Lazy<IGameTimer> _lazyGameTimer;
+        private readonly Lazy<IDoodleChamp> _lazyDoodleChamp;
 
         public ServiceManager(IRepositoryManager _repositoryManager, IHttpContextAccessor _httpContextAccessor)
         {
             _lazyPlayerService = new Lazy<IPlayerService>(() => new PlayerService(_repositoryManager, _httpContextAccessor));
             _lazyGameService = new Lazy<IGameSessions>(() => new GameSessions(_repositoryManager));
+            _lazyGameTimer = new Lazy<IGameTimer>(() => new GameTimer());
+            _lazyDoodleChamp = new Lazy<IDoodleChamp>(() => new DoodleChamp(GameTimer));
         }
 
         public IPlayerService PlayerService => _lazyPlayerService.Value;
-        public IGameSessions GameService => _lazyGameService.Value; // Fixed return type to match the interface
+        public IGameSessions GameService => _lazyGameService.Value;
+        public IGameTimer GameTimer => _lazyGameTimer.Value;
+        public IDoodleChamp DoodleChamp => _lazyDoodleChamp.Value;
     }
 }

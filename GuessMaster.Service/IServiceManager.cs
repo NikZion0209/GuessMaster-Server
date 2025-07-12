@@ -12,5 +12,7 @@ namespace GuessMaster.Service
     {
         IPlayerService PlayerService { get; }
         IGameSessions GameService { get; }
+        IGameTimer GameTimer { get; }
+        IDoodleChamp DoodleChamp { get; }
     }
 }

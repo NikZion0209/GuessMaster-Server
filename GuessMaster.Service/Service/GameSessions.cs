@@ -59,7 +59,7 @@ namespace GuessMaster.Service.Service
 
                 session.Users.Add(joiningUser);
                 session.PlayerCount++;
-                if (session.PlayerCount == DoodleChamp.MaxPlayers)
+                if (session.PlayerCount == Model.Constants.DoodleChamp.MaxPlayers)
                 {
                     session.IsFull = true;
                 }
