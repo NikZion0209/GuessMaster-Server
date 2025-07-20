@@ -49,6 +49,7 @@ namespace GuessMaster.Service.Service
             if (SessionUsers.TryGetValue(sessionId, out var connectedUsers))
             {
                 UserJoinedRoom?.Invoke(sessionId, connectedUsers);
+                Console.WriteLine("UserJoinedRoom event invoked");
             }
         }
 

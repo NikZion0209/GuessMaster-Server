@@ -10,9 +10,9 @@ namespace GuessMaster.Model.Constants
     {
         public const int GameTypeId = 1;
         public const int MaxPlayers = 8;
-        public const int MinPlayers = 4;
+        public const int MinPlayers = 2;
 
-        public const int LobbyCountdown = 60;
+        public const int LobbyCountdown = 20;
         public const int QuickLobbyCountdown = 5;
         public const string LobbyTimer = "Lobby Timer";
         public const int SelectionCountDown = 10;

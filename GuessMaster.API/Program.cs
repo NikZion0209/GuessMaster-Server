@@ -2,7 +2,9 @@ using GuessMaster.API.Middleware;
 using GuessMaster.Data.Data;
 using GuessMaster.Repository;
 using GuessMaster.Service;
+using GuessMaster.Service.Event_Handlers;
 using GuessMaster.Service.Service;
+using GuessMaster.Service.Interface;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,7 +27,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
 builder.Services.AddScoped<IServiceManager, ServiceManager>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddSingleton<IGameTimer, GameTimer>();
 builder.Services.AddSignalR();
+
+builder.Services.AddSingleton<IEventHandler, DoodleChampEventHandler>();
+builder.Services.AddHostedService<EventHostedService>();
 
 // CORS configuration
 builder.Services.AddCors(options =>

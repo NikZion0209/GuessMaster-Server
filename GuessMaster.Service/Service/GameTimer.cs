@@ -13,6 +13,7 @@ namespace GuessMaster.Service.Service
     public class GameTimer : IGameTimer
     {
         public static event Action<int>? SpecificGamemodeAction;
+        public static event Action<int, int>? TimerTick;
         private static readonly ConcurrentDictionary<int, Model.Models.Timer> Timers = new();
 
         private bool CreateTimer(int sessionId, string timerName, int timerLength)
@@ -89,7 +90,7 @@ namespace GuessMaster.Service.Service
                     return Task.CompletedTask; // Exit if paused
                 }
 
-                if (gameType == Gamemodes.DoodleChamp)
+                TimerTick?.Invoke(sessionId, time);
 
                 Console.WriteLine($"Timer {sessionTimer.name} for session {sessionId} is running. Time left: {time} seconds.");
                 Thread.Sleep(1000); // Sleep for 1 second
