@@ -1,5 +1,6 @@
 ﻿using GuessMaster.Data.Models;
 using GuessMaster.Model.Constants;
+using GuessMaster.Model.Models;
 using GuessMaster.Repository;
 using GuessMaster.Service.Interface;
 using System;
@@ -13,22 +14,45 @@ namespace GuessMaster.Service.Service
     public class GameSessions : IGameSessions
     {
         private readonly IRepositoryManager _repositoryManager;
+        private readonly IDoodleChamp _doodleChamp;
 
-        public GameSessions(IRepositoryManager repositoryManager)
+        public GameSessions(IRepositoryManager repositoryManager, IDoodleChamp doodleChamp)
         {
             _repositoryManager = repositoryManager;
+            _doodleChamp = doodleChamp;
         }
 
-        public List<GameSession> GetAvailableGameSessions(int gameType)
+        public class GameSessionDTO
+        {
+            public int SessionId { get; set; }
+            public int PlayerCount { get; set; }
+            public int MaxPlayers { get; set; }
+        }
+
+        public List<GameSessionDTO> GetAvailableGameSessions(int gameType)
         {
             try
             {
-                List<GameSession> sessions = _repositoryManager.GameSessionRepository.GetAvailableGameSessions(gameType);
-                if (sessions == null || !sessions.Any())
+                switch (gameType)
                 {
-                    sessions = _repositoryManager.GameSessionRepository.CreateNewSession(gameType);
+                    case Gamemodes.DoodleChamp:
+                        _doodleChamp.GetAvailableSessions(out var availableSessions);
+
+                        if (availableSessions == null || !availableSessions.Any())
+                        {
+                            _doodleChamp.CreateNewSession(out availableSessions);
+                        }
+
+                        return availableSessions.Select(s => new GameSessionDTO
+                        {
+                            SessionId = s.SessionId,
+                            PlayerCount = s.PlayerCount,
+                            MaxPlayers = s.MaxPlayers
+                        }).ToList();
+
+                    default:
+                        throw new ArgumentException("Invalid game type specified.");
                 }
-                return sessions;
             }
             catch (Exception ex)
             {
@@ -37,35 +61,19 @@ namespace GuessMaster.Service.Service
             }
         }
 
-        public void AddUserToSession(int sessionId, int userId)
+        public void AddUserToSession(int gameType, int sessionId, int userId)
         {
             try
             {
-                var session = _repositoryManager.GameSessionRepository.GetSessionById(sessionId);
-                if (session == null)
+                User user = _repositoryManager.PlayerRepository.GetUserById(userId);
+                switch (gameType)
                 {
-                    throw new Exception("Session not found.");
+                    case Gamemodes.DoodleChamp:
+                        _doodleChamp.AddUserToSession(sessionId, user);
+                        break;
+                    default:
+                        throw new ArgumentException("Invalid game type specified.");
                 }
-                if (session.IsFull)
-                {
-                    throw new Exception("Session is full.");
-                }
-
-                User joiningUser = _repositoryManager.PlayerRepository.GetUserById(userId);
-                if (joiningUser == null)
-                {
-                    throw new Exception("User not found.");
-                }
-
-                session.Users.Add(joiningUser);
-                session.PlayerCount++;
-                if (session.PlayerCount == Model.Constants.DoodleChamp.MaxPlayers)
-                {
-                    session.IsFull = true;
-                }
-                
-                _repositoryManager.GameSessionRepository.UpdateSession(session);
-                Console.WriteLine($"User {joiningUser.Username} added to session {sessionId}.");
             }
             catch (Exception ex)
             {

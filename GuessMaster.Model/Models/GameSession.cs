@@ -1,15 +1,14 @@
-﻿using System;
+﻿using GuessMaster.Model.Models;
+using System;
 using System.Collections.Generic;
 
 namespace GuessMaster.Data.Models;
 
 public partial class GameSession
 {
-    public int SessionId { get; set; }
-    public DateTime CreatedAt { get; set; }
+    public required int SessionId { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public int PlayerCount { get; set; } = 0;
     public bool IsFull { get; set; } = false;
-    public bool InPlay { get; set; } = false;
-    public required int GameType { get; set; }
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
+    public virtual List<ConnectedUser> ConnectedUsers { get; set; } = new List<ConnectedUser>();
 }

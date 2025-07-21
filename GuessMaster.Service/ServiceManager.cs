@@ -23,9 +23,9 @@ namespace GuessMaster.Service
         public ServiceManager(IRepositoryManager _repositoryManager, IHttpContextAccessor _httpContextAccessor)
         {
             _lazyPlayerService = new Lazy<IPlayerService>(() => new PlayerService(_repositoryManager, _httpContextAccessor));
-            _lazyGameService = new Lazy<IGameSessions>(() => new GameSessions(_repositoryManager));
             _lazyGameTimer = new Lazy<IGameTimer>(() => new GameTimer());
             _lazyDoodleChamp = new Lazy<IDoodleChamp>(() => new DoodleChamp(GameTimer));
+            _lazyGameService = new Lazy<IGameSessions>(() => new GameSessions(_repositoryManager, DoodleChamp));
         }
 
         public IPlayerService PlayerService => _lazyPlayerService.Value;

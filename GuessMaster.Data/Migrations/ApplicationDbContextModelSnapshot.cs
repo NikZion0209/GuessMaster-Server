@@ -22,36 +22,6 @@ namespace GuessMaster.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("GuessMaster.Data.Models.GameSession", b =>
-                {
-                    b.Property<int>("SessionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SessionId"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValueSql("(GETDATE())");
-
-                    b.Property<int>("GameType")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("InPlay")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsFull")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("PlayerCount")
-                        .HasColumnType("int");
-
-                    b.HasKey("SessionId");
-
-                    b.ToTable("GameSessions");
-                });
-
             modelBuilder.Entity("GuessMaster.Data.Models.User", b =>
                 {
                     b.Property<int>("UserId")
@@ -69,9 +39,6 @@ namespace GuessMaster.Data.Migrations
                         .HasColumnType("datetime")
                         .HasDefaultValueSql("(GETDATE())");
 
-                    b.Property<int?>("SessionId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("datetime")
@@ -84,24 +51,7 @@ namespace GuessMaster.Data.Migrations
 
                     b.HasKey("UserId");
 
-                    b.HasIndex("SessionId");
-
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("GuessMaster.Data.Models.User", b =>
-                {
-                    b.HasOne("GuessMaster.Data.Models.GameSession", "GameSession")
-                        .WithMany("Users")
-                        .HasForeignKey("SessionId")
-                        .HasConstraintName("FK_User_GameSession");
-
-                    b.Navigation("GameSession");
-                });
-
-            modelBuilder.Entity("GuessMaster.Data.Models.GameSession", b =>
-                {
-                    b.Navigation("Users");
                 });
 #pragma warning restore 612, 618
         }

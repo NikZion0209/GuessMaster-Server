@@ -13,76 +13,76 @@ namespace GuessMaster.Service.Service
     public class ChatHub : Hub
     {
         public static event Action<int, string>? UserLeftRoom;
-        public static event Action<int, List<ConnectedUser>>? UserJoinedRoom;
+        public static event Action<int, int, string>? UserJoinedRoom;
 
-        private static readonly ConcurrentDictionary<int, List<ConnectedUser>> SessionUsers = new();
+        private static readonly ConcurrentDictionary<int, List<string>> SessionUsers = new();
 
-        // Method for joining a room
-        public async Task JoinRoom(int sessionId, string userName, string avatarUrl)
+        private void RemoveUserFromSession(int sessionId, string connectionId)
         {
-            Console.WriteLine($"{userName} is joining room {sessionId}");
-            await Groups.AddToGroupAsync(Context.ConnectionId, sessionId.ToString());
-            await Clients.Group(sessionId.ToString()).SendAsync("RoomMessage", $"{userName} has joined the room");
-            var user = new ConnectedUser
+            if (SessionUsers.TryGetValue(sessionId, out var users))
             {
-                ConnectionId = Context.ConnectionId,
-                Username = userName,
-                AvatarUrl = avatarUrl
-            };
+                lock (users)
+                {
+                    var user = users.FirstOrDefault(connectionId);
+                    if (user != null)
+                    {
+                        users.Remove(user);
+                    }
+                }
+            }
+        }
+
+        public async Task JoinRoom(int sessionId, int userId)
+        {
+            Console.WriteLine($"{userId} is joining room {sessionId}");
+            await Groups.AddToGroupAsync(Context.ConnectionId, sessionId.ToString());
 
             SessionUsers.AddOrUpdate(
                 sessionId,
-                _ => new List<ConnectedUser> { user },
-                (_, list) =>
+                _ => new List<string> { Context.ConnectionId },
+                (_, existingUsers) =>
                 {
-                    lock (list)
+                    lock (existingUsers)
                     {
-                        if (!list.Any(u => u.ConnectionId == user.ConnectionId))
-                            list.Add(user);
+                        existingUsers.Add(Context.ConnectionId);
                     }
-                    return list;
+                    return existingUsers;
                 }
             );
 
-            await GetPlayersInSession(sessionId);
+            UserJoinedRoom?.Invoke(sessionId, userId, Context.ConnectionId);
+        }
 
-            if (SessionUsers.TryGetValue(sessionId, out var connectedUsers))
-            {
-                UserJoinedRoom?.Invoke(sessionId, connectedUsers);
-                Console.WriteLine("UserJoinedRoom event invoked");
-            }
+        // Method for handling disconnection from a room
+        public override async Task OnDisconnectedAsync(Exception? exception)
+        {
+            var sessionId = SessionUsers
+                .FirstOrDefault(kvp => kvp.Value.Any(ConnectionId => ConnectionId == Context.ConnectionId)).Key;
+
+            RemoveUserFromSession(sessionId, Context.ConnectionId);
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, sessionId.ToString());
+            UserLeftRoom?.Invoke(sessionId, Context.ConnectionId);
+
+            await base.OnDisconnectedAsync(exception);
         }
 
         // Method for leaving a room
         public async Task LeaveRoom(int sessionId)
         {
+            RemoveUserFromSession(sessionId, Context.ConnectionId);
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, sessionId.ToString());
-            await Clients.Group(sessionId.ToString()).SendAsync("RoomUpdate", $"{Context.ConnectionId} left room {sessionId}");
-
             UserLeftRoom?.Invoke(sessionId, Context.ConnectionId);
         }
 
         // Method for broadcasting messages to the room
         public async Task SendRoomMessage(int sessionId, string userName, string message)
         {
-            await Clients.Group(sessionId.ToString()).SendAsync("RoomMessage", $"{userName} : {message}");
-        }
-
-        public async Task GetPlayersInSession(int sessionId)
-        {
-            if (SessionUsers.TryGetValue(sessionId, out var users))
-            {
-                await Clients.Group(sessionId.ToString()).SendAsync("PlayersInSession", users);
-            }
-            else
-            {
-                Console.Error.WriteLine($"Error retrieving users for session {sessionId}");
-            }
+            await Clients.Group(sessionId.ToString()).SendAsync(ChatEventNames.RoomMessage, $"{userName} : {message}");
         }
 
         public async Task SendDrawing(int sessionId, string drawingData)
         {
-            await Clients.Group(sessionId.ToString()).SendAsync("RecieveDrawing", drawingData);
+            await Clients.Group(sessionId.ToString()).SendAsync(ChatEventNames.RecieveDrawing, drawingData);
         }
     }
 }

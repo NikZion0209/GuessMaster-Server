@@ -26,11 +26,15 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Dependency Injection for repository and service managers
 builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
 builder.Services.AddScoped<IServiceManager, ServiceManager>();
+
+builder.Services.AddSingleton<IDoodleChamp, DoodleChamp>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddSingleton<IGameTimer, GameTimer>();
+builder.Services.AddSingleton<IEventHandler, DoodleChampEventHandler>();
+
 builder.Services.AddSignalR();
 
-builder.Services.AddSingleton<IEventHandler, DoodleChampEventHandler>();
+
 builder.Services.AddHostedService<EventHostedService>();
 
 // CORS configuration

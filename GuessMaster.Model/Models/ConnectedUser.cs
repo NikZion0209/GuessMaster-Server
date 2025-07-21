@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GuessMaster.Data.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,11 +7,9 @@ using System.Threading.Tasks;
 
 namespace GuessMaster.Model.Models
 {
-    public class ConnectedUser
+    public class ConnectedUser : User
     {
-        public required string ConnectionId { get; set; }
-        public required string Username { get; set; }
-        public required string AvatarUrl { get; set; }
+        public string ConnectionId { get; set; } = string.Empty;
         public string GuessMasterDrawing { get; set; } = string.Empty;
     }
 }

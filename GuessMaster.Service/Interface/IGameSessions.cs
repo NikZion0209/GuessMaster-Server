@@ -1,16 +1,17 @@
-﻿using GuessMaster.Service.Service;
+﻿using GuessMaster.Data.Models;
+using GuessMaster.Service.Service;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using GuessMaster.Data.Models;
+using static GuessMaster.Service.Service.GameSessions;
 
 namespace GuessMaster.Service.Interface
 {
     public interface IGameSessions
     {
-        List<GameSession> GetAvailableGameSessions(int gameType);
-        void AddUserToSession(int sessionId, int userId);
+        public List<GameSessionDTO> GetAvailableGameSessions(int gameType);
+        void AddUserToSession(int gameType, int sessionId, int userId);
     }
 }

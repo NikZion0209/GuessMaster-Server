@@ -12,7 +12,7 @@ namespace GuessMaster.Service.Service
 {
     public class GameTimer : IGameTimer
     {
-        public static event Action<int>? SpecificGamemodeAction;
+        public static event Action<int, string>? DCLookoutConditionAction;
         public static event Action<int, int>? TimerTick;
         private static readonly ConcurrentDictionary<int, Model.Models.Timer> Timers = new();
 
@@ -46,11 +46,25 @@ namespace GuessMaster.Service.Service
             return timer.timer;
         }
 
+        public void SetTimerLength(int sessionId, int timerLength)
+        {
+            Model.Models.Timer timer = GetTimer(sessionId);
+            timer.timer = timerLength;
+            return;
+        }
+
         public void PauseTimer(int sessionId)
         {
             Model.Models.Timer timer = GetTimer(sessionId);
             timer.paused = true;
 
+            return;
+        }
+
+        public void UnpauseTimer(int sessionId)
+        {
+            Model.Models.Timer timer = GetTimer(sessionId);
+            timer.paused = false;
             return;
         }
 
@@ -62,14 +76,13 @@ namespace GuessMaster.Service.Service
             return;
         }
 
-        public Task StartTimer(int sessionId, string timerName, int timerLength, int? gameType)
+        public Task StartTimer(int sessionId, string timerName, int timerLength, int gameType, int? lookoutCondition = null, string? lookoutEvent = null)
         {
             bool timerExists = !(CreateTimer(sessionId, timerName, timerLength));
 
             if (timerExists)
             {
-                Console.WriteLine($"Timer for session {sessionId} already exists. Cannot start a new timer.");
-                return Task.CompletedTask;
+                Console.WriteLine($"Timer for session {sessionId} already exists. Cannot start a new timer, resuming existing timer");
             }
 
             Model.Models.Timer sessionTimer = GetTimer(sessionId);
@@ -88,6 +101,11 @@ namespace GuessMaster.Service.Service
                     Console.WriteLine($"Timer {sessionTimer.name} for session {sessionId} is paused at {time} seconds.");
                     sessionTimer.timer = time;
                     return Task.CompletedTask; // Exit if paused
+                }
+
+                if (time == lookoutCondition && gameType == Gamemodes.DoodleChamp)
+                {
+                    DCLookoutConditionAction?.Invoke(sessionId, lookoutEvent ?? "Lookout condition met!");
                 }
 
                 TimerTick?.Invoke(sessionId, time);

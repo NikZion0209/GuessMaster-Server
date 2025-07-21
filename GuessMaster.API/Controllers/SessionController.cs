@@ -40,13 +40,13 @@ namespace GuessMaster.API.Controllers
 
         [Route("addUserToSession")]
         [HttpPost]
-        public async Task<Result> AddUserToSession([FromQuery] int sessionId, int userId)
+        public async Task<Result> AddUserToSession([FromQuery] int gameType, [FromQuery] int sessionId, int userId)
         {
             Result result = new Result();
             try
             {
                 Console.WriteLine($"Attempting to add user with ID {userId} to session with ID {sessionId}.");
-                _serviceManager.GameService.AddUserToSession(sessionId, userId);
+                _serviceManager.GameService.AddUserToSession(gameType, sessionId, userId);
 
                 // Read existing UserInfo cookie
                 var userInfoJson = Request.Cookies["UserInfo"];

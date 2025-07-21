@@ -15,8 +15,6 @@ public partial class ApplicationDbContext : DbContext
     {
     }
 
-    public virtual DbSet<GameSession> GameSessions { get; set; }
-
     public virtual DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -47,18 +45,6 @@ public partial class ApplicationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<GameSession>(entity =>
-        {
-            entity.HasKey(e => e.SessionId);
-
-            entity.Property(e => e.SessionId)
-                .ValueGeneratedOnAdd();
-
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("(GETDATE())")
-                .HasColumnType("datetime");
-        });
-
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.UserId);
@@ -73,11 +59,6 @@ public partial class ApplicationDbContext : DbContext
                 .HasColumnType("datetime");
 
             entity.Property(e => e.Username).HasMaxLength(100);
-
-            entity.HasOne(u => u.GameSession)
-                .WithMany(gs => gs.Users)
-                .HasForeignKey(u => u.SessionId)
-                .HasConstraintName("FK_User_GameSession");
         });
 
         OnModelCreatingPartial(modelBuilder);
