@@ -23,7 +23,7 @@ namespace GuessMaster.Service.Service
             {
                 lock (users)
                 {
-                    var user = users.FirstOrDefault(connectionId);
+                    var user = users.FirstOrDefault(user => user == connectionId);
                     if (user != null)
                     {
                         users.Remove(user);
@@ -34,7 +34,6 @@ namespace GuessMaster.Service.Service
 
         public async Task JoinRoom(int sessionId, int userId)
         {
-            Console.WriteLine($"{userId} is joining room {sessionId}");
             await Groups.AddToGroupAsync(Context.ConnectionId, sessionId.ToString());
 
             SessionUsers.AddOrUpdate(
@@ -49,17 +48,26 @@ namespace GuessMaster.Service.Service
                     return existingUsers;
                 }
             );
-
             UserJoinedRoom?.Invoke(sessionId, userId, Context.ConnectionId);
         }
 
         // Method for handling disconnection from a room
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            Console.WriteLine($"User with connection ID {Context.ConnectionId} disconnected from the chat hub.");
-            var sessionId = SessionUsers
-                .FirstOrDefault(kvp => kvp.Value.Any(ConnectionId => ConnectionId == Context.ConnectionId)).Key;
+            var sessionEntry = SessionUsers
+                .FirstOrDefault(kvp => kvp.Value.Any(ConnectionId => ConnectionId == Context.ConnectionId));
 
+            // If no session found, skip further processing
+            if (sessionEntry.Value == null)
+            {
+                Console.WriteLine($"User with connection ID {Context.ConnectionId} disconnected but no session found.");
+                await base.OnDisconnectedAsync(exception);
+                return;
+            }
+
+            var sessionId = sessionEntry.Key;
+
+            Console.WriteLine($"User with connection ID {Context.ConnectionId} disconnected from session {sessionId} - chat hub.");
             RemoveUserFromSession(sessionId, Context.ConnectionId);
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, sessionId.ToString());
             UserLeftRoom?.Invoke(sessionId, Context.ConnectionId);

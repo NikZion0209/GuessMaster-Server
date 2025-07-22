@@ -23,6 +23,7 @@ namespace GuessMaster.Service.Service
         public static event Action<int>? GameStarted;
         public static event Action<int>? GameRestart;
         public static event Action<int>? GameEndedEarly;
+        public static event Action<int, List<User>>? UpdatePlayerLeaderboard;
 
         public DoodleChamp(IGameTimer gameTimer)
         {
@@ -108,6 +109,11 @@ namespace GuessMaster.Service.Service
             }
         }
 
+        public bool CheckIfSessionExists(int sessionId)
+        {
+            return Sessions.ContainsKey(sessionId);
+        }
+
         private void GetSessionUsersTurn(int sessionId, out string connectionId)
         {
             if (Sessions.TryGetValue(sessionId, out var session))
@@ -187,7 +193,7 @@ namespace GuessMaster.Service.Service
             }
         }
 
-        public string GetUserNameById(int sessionId, int userId)
+        public string GetUserNameByUserId(int sessionId, int userId)
         {
             GetSessionUsers(sessionId, out List<ConnectedUser> users);
             var user = users.FirstOrDefault(u => u.UserId == userId);
@@ -197,7 +203,21 @@ namespace GuessMaster.Service.Service
             }
             else
             {
-                throw new KeyNotFoundException($"User with ID {userId} not found in session {sessionId}.");
+                throw new KeyNotFoundException($"User with user ID {userId} not found in session {sessionId}.");
+            }
+        }
+
+        public string GetUserNameByConnectionId(int sessionId, string connectionId)
+        {
+            GetSessionUsers(sessionId, out List<ConnectedUser> users);
+            var user = users.FirstOrDefault(u => u.ConnectionId == connectionId);
+            if (user != null)
+            {
+                return user.Username;
+            }
+            else
+            {
+                throw new KeyNotFoundException($"User with connection ID {connectionId} not found in session {sessionId}.");
             }
         }
 
@@ -209,12 +229,25 @@ namespace GuessMaster.Service.Service
                 throw new KeyNotFoundException($"Session {sessionId} not found.");
             }
 
-            if (session.ConnectedUsers.Count >= Model.Constants.DoodleChamp.MinPlayers && 
-                session.GameState == Model.Constants.DoodleChamp.PreGame)
+            if (session.ConnectedUsers.Count >= Model.Constants.DoodleChamp.MinPlayers)
             {
-                Console.WriteLine($"Session {sessionId} has enough players to start the game.");
-                StartGame(sessionId);
+                switch (session.GameState)
+                {
+                    case Model.Constants.DoodleChamp.PreGame:
+                        Console.WriteLine($"Session {sessionId} has enough players to start the game.");
+                        StartGame(sessionId);
+                        break;
+                    case Model.Constants.DoodleChamp.Lobby:
+                        Console.WriteLine($"Session {sessionId} is already in the lobby state.");
+                        StartingLobbyTimer?.Invoke(sessionId);
+                        GenerateOrderOfPlay(sessionId);
+                        break;
+                    default:
+                        return;
+                }
+                
             }
+
         }
 
         public async Task StartGame(int sessionId)
@@ -227,13 +260,20 @@ namespace GuessMaster.Service.Service
                 sessionId, 
                 Model.Constants.DoodleChamp.LobbyTimer, 
                 Model.Constants.DoodleChamp.LobbyCountdown, 
-                Model.Constants.Gamemodes.DoodleChamp,
+                Gamemodes.DoodleChamp,
                 Model.Constants.DoodleChamp.OrderOfPlayCountdown,
                 Model.Constants.DoodleChamp.OrderOfPlayList
             );
 
             UpdateSessionState(sessionId, Model.Constants.DoodleChamp.InGame);
             GameStarted?.Invoke(sessionId);
+
+            await _gameTimer.StartTimer(
+                sessionId,
+                Model.Constants.DoodleChamp.DrawingTimer,
+                Model.Constants.DoodleChamp.DrawingCountdown,
+                Gamemodes.DoodleChamp
+            );
         }
 
         public void RemoveFromSession(int sessionId, string connectionId)
@@ -262,7 +302,7 @@ namespace GuessMaster.Service.Service
                             _gameTimer.SetTimerLength(sessionId, Model.Constants.DoodleChamp.QuickLobbyCountdown);
                         }
                         GameRestart?.Invoke(sessionId);
-
+                        UpdateSessionState(sessionId, Model.Constants.DoodleChamp.PreGame);
                         break;
                     case Model.Constants.DoodleChamp.InGame:
                         Console.WriteLine($"Game ended for session {sessionId} due to insufficient players.");
@@ -273,9 +313,16 @@ namespace GuessMaster.Service.Service
                         Console.WriteLine($"Unknown game state for session {sessionId}.");
                         break;
                 }
-                UpdateSessionState(sessionId, Model.Constants.DoodleChamp.PreGame);
+                return;
             }
-            
+
+            var formattedUsers = currentUsers.Select(user => new User
+            {
+                Username = user.Username,
+                AvatarUrl = user.AvatarUrl
+            }).ToList();
+            UpdatePlayerLeaderboard?.Invoke(sessionId, formattedUsers);
+
             GetSessionUsersTurn(sessionId, out string currentTurnConnectionId);
 
             if (gameState == Model.Constants.DoodleChamp.InGame && connectionId == currentTurnConnectionId)

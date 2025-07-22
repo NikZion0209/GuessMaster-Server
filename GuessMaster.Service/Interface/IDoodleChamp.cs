@@ -16,9 +16,11 @@ namespace GuessMaster.Service.Interface
         public void GetAvailableSessions(out List<DoodleChampSession> availableSessions);
         public void CreateNewSession(out List<DoodleChampSession> doodleChampSession);
         public void RemoveSession(int sessionId);
+        public bool CheckIfSessionExists(int sessionId);
         public void AddUserToSession(int sessionId, User user);
         public void UpdateUserConnectionId(int sessionId, int userId, string connectionId);
-        public string GetUserNameById(int sessionId, int userId);
+        public string GetUserNameByUserId(int sessionId, int userId);
+        public string GetUserNameByConnectionId(int sessionId, string connectionId);
         public void CheckLobbyStatus(int sessionId);
         public void GetSessionUsers(int sessionId, out List<ConnectedUser> users);
     }

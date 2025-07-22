@@ -128,7 +128,6 @@ namespace GuessMaster.Service.Service
 
                 TimerTick?.Invoke(sessionId, sessionTimer.timer);
 
-                Console.WriteLine($"Timer {sessionTimer.name} for session {sessionId} is running. Time left: {sessionTimer.timer} seconds.");
                 await Task.Delay(1000); // Sleep for 1 second
                 sessionTimer.timer--;
             }

@@ -28,6 +28,7 @@ namespace GuessMaster.Service.Event_Handlers
             Service.DoodleChamp.GameStarted += OnGameStart;
             Service.DoodleChamp.GameRestart += OnGameRestart;
             Service.DoodleChamp.GameEndedEarly += OnGameEndEarly;
+            Service.DoodleChamp.UpdatePlayerLeaderboard += OnUpdatePlayerLeaderboard;
         }
 
         public void Unsubscribe()
@@ -40,6 +41,7 @@ namespace GuessMaster.Service.Event_Handlers
             Service.DoodleChamp.GameStarted -= OnGameStart;
             Service.DoodleChamp.GameRestart -= OnGameRestart;
             Service.DoodleChamp.GameEndedEarly -= OnGameEndEarly;
+            Service.DoodleChamp.UpdatePlayerLeaderboard -= OnUpdatePlayerLeaderboard;
         }
 
         private void OnUserJoinedRoom(int sessionId, int userId, string connectionId)
@@ -53,27 +55,31 @@ namespace GuessMaster.Service.Event_Handlers
                 AvatarUrl = user.AvatarUrl
             }).ToList();
 
+            OnUpdatePlayerLeaderboard(sessionId, formattedUsers);
+            string user = _doodleChamp.GetUserNameByUserId(sessionId, userId);
             _hubContext.Clients.Group(sessionId.ToString())
-                .SendAsync(ChatEventNames.PlayersInSession, formattedUsers);
+                .SendAsync(ChatEventNames.RoomMessage, $"{user} has joined the room");
 
             _doodleChamp.CheckLobbyStatus(sessionId);
         }
 
         private void OnUserLeftRoom(int sessionId, string connectionId)
         {
-            Console.WriteLine($"User with connection ID {connectionId} left room {sessionId}. - From Event Handler");
-            _doodleChamp.RemoveFromSession(sessionId, connectionId);
-            _doodleChamp.GetSessionUsers(sessionId, out List<ConnectedUser> users);
-
-            var formattedUsers = users.Select(user => new User
+            Console.WriteLine($"User with connection ID {connectionId} left the room {sessionId}");
+            if (_doodleChamp.CheckIfSessionExists(sessionId))
             {
-                Username = user.Username,
-                AvatarUrl = user.AvatarUrl
-            }).ToList();
+                string user = _doodleChamp.GetUserNameByConnectionId(sessionId, connectionId);
+                _hubContext.Clients.Group(sessionId.ToString())
+                    .SendAsync(ChatEventNames.RoomMessage, $"{user} has left the room");
+                _doodleChamp.RemoveFromSession(sessionId, connectionId);
+            }
+        }
 
+        private void OnUpdatePlayerLeaderboard(int sessionId, List<User> users)
+        {
+            Console.WriteLine($"Notifiying users in session {sessionId} for UpdatePlayerLeaderboard event handler");
             _hubContext.Clients.Group(sessionId.ToString())
-                .SendAsync(ChatEventNames.PlayersInSession, formattedUsers);
-
+                .SendAsync(ChatEventNames.PlayersInSession, users);
         }
 
         private void OnTimerTick(int sessionId, int secondsLeft)
@@ -102,11 +108,13 @@ namespace GuessMaster.Service.Event_Handlers
 
         private async void OnGameEndEarly(int sessionId)
         {
+            Console.WriteLine($"Notifiying users in session {sessionId} for GameEndEarly");
             await _hubContext.Clients.Group(sessionId.ToString())
                 .SendAsync(ChatEventNames.GameEndEarly);
 
             if (ChatHub.SessionUsers.TryGetValue(sessionId, out var connectionIds))
             {
+                Console.WriteLine($"Removing users from session {sessionId} in GameEndEarly event handler");
                 foreach (var connectionId in connectionIds)
                 {
                     await _hubContext.Groups.RemoveFromGroupAsync(connectionId, sessionId.ToString());
@@ -114,6 +122,7 @@ namespace GuessMaster.Service.Event_Handlers
                 ChatHub.SessionUsers.TryRemove(sessionId, out _);
             }
 
+            Console.WriteLine($"Removing session {sessionId} from DoodleChamp in GameEndEarly event handler");
             _doodleChamp.RemoveSession(sessionId);
         }
 
