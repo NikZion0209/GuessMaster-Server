@@ -252,7 +252,6 @@ namespace GuessMaster.Service.Service
 
         public async Task StartGame(int sessionId)
         {
-            Console.WriteLine($"Starting Lobby timer for session {sessionId}");
             UpdateSessionState(sessionId, Model.Constants.DoodleChamp.Lobby);
             StartingLobbyTimer?.Invoke(sessionId);
 
@@ -274,6 +273,19 @@ namespace GuessMaster.Service.Service
                 Model.Constants.DoodleChamp.DrawingCountdown,
                 Gamemodes.DoodleChamp
             );
+        }
+
+        private void UpdatePlayerTurn(int sessionId, string username)
+        {
+            if (Sessions.TryGetValue(sessionId, out var session))
+            {
+                session.UsersTurn = username;
+                Console.WriteLine($"Updated turn for session {sessionId} to user with connection ID {connectionId}.");
+            }
+            else
+            {
+                throw new KeyNotFoundException($"Session {sessionId} not found.");
+            }
         }
 
         public void RemoveFromSession(int sessionId, string connectionId)

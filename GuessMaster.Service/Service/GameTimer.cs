@@ -97,6 +97,8 @@ namespace GuessMaster.Service.Service
             Model.Models.Timer sessionTimer = GetTimer(sessionId);
             var pauseEvent = PauseEvents[sessionId];
 
+            Console.WriteLine($"Timer {sessionTimer.name} has started for session {sessionId}.");
+
             while (sessionTimer.timer > 0)
             {
                 if (sessionTimer.cancelled)
