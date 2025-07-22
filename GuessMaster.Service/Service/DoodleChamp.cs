@@ -24,6 +24,7 @@ namespace GuessMaster.Service.Service
         public static event Action<int>? GameRestart;
         public static event Action<int>? GameEndedEarly;
         public static event Action<int, List<User>>? UpdatePlayerLeaderboard;
+        public static event Action<int, string, string>? NotifyUserTurn;
 
         public DoodleChamp(IGameTimer gameTimer)
         {
@@ -267,20 +268,45 @@ namespace GuessMaster.Service.Service
             UpdateSessionState(sessionId, Model.Constants.DoodleChamp.InGame);
             GameStarted?.Invoke(sessionId);
 
-            await _gameTimer.StartTimer(
-                sessionId,
-                Model.Constants.DoodleChamp.DrawingTimer,
-                Model.Constants.DoodleChamp.DrawingCountdown,
-                Gamemodes.DoodleChamp
-            );
+            GetSessionUsers(sessionId, out var users);
+
+            foreach (var user in users)
+            {
+                UpdatePlayerTurn(sessionId, user.Username, user.ConnectionId);
+
+                // Select a prompt timer
+                await _gameTimer.StartTimer(
+                    sessionId,
+                    Model.Constants.DoodleChamp.SelectionTimer,
+                    Model.Constants.DoodleChamp.SelectionCountDown,
+                    Gamemodes.DoodleChamp
+                );
+
+                // Drawing timer
+                await _gameTimer.StartTimer(
+                    sessionId,
+                    Model.Constants.DoodleChamp.DrawingTimer,
+                    Model.Constants.DoodleChamp.DrawingCountdown,
+                    Gamemodes.DoodleChamp
+                );
+
+                // Round summary timer
+                await _gameTimer.StartTimer(
+                    sessionId,
+                    Model.Constants.DoodleChamp.RoundSummaryTimer,
+                    Model.Constants.DoodleChamp.RoundSummaryCountdown,
+                    Gamemodes.DoodleChamp
+                );
+            }  
         }
 
-        private void UpdatePlayerTurn(int sessionId, string username)
+        private void UpdatePlayerTurn(int sessionId, string username, string connectionId)
         {
             if (Sessions.TryGetValue(sessionId, out var session))
             {
                 session.UsersTurn = username;
-                Console.WriteLine($"Updated turn for session {sessionId} to user with connection ID {connectionId}.");
+                NotifyUserTurn?.Invoke(sessionId, connectionId, username);
+                Console.WriteLine($"{username} turn in session {sessionId}.");
             }
             else
             {

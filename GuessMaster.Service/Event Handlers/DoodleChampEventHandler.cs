@@ -22,26 +22,32 @@ namespace GuessMaster.Service.Event_Handlers
         {
             ChatHub.UserJoinedRoom += OnUserJoinedRoom;
             ChatHub.UserLeftRoom += OnUserLeftRoom;
+
             GameTimer.TimerTick += OnTimerTick;
             GameTimer.DCLookoutConditionAction += OnLookoutCondition;
+
             Service.DoodleChamp.StartingLobbyTimer += OnStartingLobbyTimer;
             Service.DoodleChamp.GameStarted += OnGameStart;
             Service.DoodleChamp.GameRestart += OnGameRestart;
             Service.DoodleChamp.GameEndedEarly += OnGameEndEarly;
             Service.DoodleChamp.UpdatePlayerLeaderboard += OnUpdatePlayerLeaderboard;
+            Service.DoodleChamp.NotifyUserTurn += OnUserTurn;
         }
 
         public void Unsubscribe()
         {
             ChatHub.UserJoinedRoom -= OnUserJoinedRoom;
             ChatHub.UserLeftRoom -= OnUserLeftRoom;
+
             GameTimer.TimerTick -= OnTimerTick;
             GameTimer.DCLookoutConditionAction -= OnLookoutCondition;
+
             Service.DoodleChamp.StartingLobbyTimer -= OnStartingLobbyTimer;
             Service.DoodleChamp.GameStarted -= OnGameStart;
             Service.DoodleChamp.GameRestart -= OnGameRestart;
             Service.DoodleChamp.GameEndedEarly -= OnGameEndEarly;
             Service.DoodleChamp.UpdatePlayerLeaderboard -= OnUpdatePlayerLeaderboard;
+            Service.DoodleChamp.NotifyUserTurn -= OnUserTurn;
         }
 
         private void OnUserJoinedRoom(int sessionId, int userId, string connectionId)
@@ -124,6 +130,15 @@ namespace GuessMaster.Service.Event_Handlers
 
             Console.WriteLine($"Removing session {sessionId} from DoodleChamp in GameEndEarly event handler");
             _doodleChamp.RemoveSession(sessionId);
+        }
+        
+        private void OnUserTurn(int sessionId, string connectionId, string username)
+        {
+            _hubContext.Clients.Client(connectionId)
+                .SendAsync(ChatEventNames.UserTurn);
+
+            _hubContext.Clients.Group(sessionId.ToString())
+                .SendAsync(ChatEventNames.RoomMessage, $"{username} is the drawer");
         }
 
         private void OnLookoutCondition(int sessionId, string lookoutCondition)
