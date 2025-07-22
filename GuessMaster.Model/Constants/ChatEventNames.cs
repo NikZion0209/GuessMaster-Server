@@ -20,5 +20,6 @@ namespace GuessMaster.Model.Constants
         public const string TimerUpdate = "TimerUpdate";
         public const string LobbyTimerStarted = "LobbyTimerStarted";
         public const string GameState = "GameState";
+        public const string GameEndEarly = "GameEndEarly";
     }
 }

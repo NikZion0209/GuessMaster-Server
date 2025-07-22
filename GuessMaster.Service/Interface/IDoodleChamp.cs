@@ -15,6 +15,7 @@ namespace GuessMaster.Service.Interface
         public void RemoveFromSession(int sessionId, string connectionId);
         public void GetAvailableSessions(out List<DoodleChampSession> availableSessions);
         public void CreateNewSession(out List<DoodleChampSession> doodleChampSession);
+        public void RemoveSession(int sessionId);
         public void AddUserToSession(int sessionId, User user);
         public void UpdateUserConnectionId(int sessionId, int userId, string connectionId);
         public string GetUserNameById(int sessionId, int userId);

@@ -21,14 +21,15 @@ namespace GuessMaster.Service.Service
         public static event Action<int>? StartingLobbyTimer;
         public static event Action<int>? StoppingLobbyTimer;
         public static event Action<int>? GameStarted;
-        public static event Action<int>? GameEnded;
+        public static event Action<int>? GameRestart;
+        public static event Action<int>? GameEndedEarly;
 
         public DoodleChamp(IGameTimer gameTimer)
         {
             _gameTimer = gameTimer;
         }
 
-        private void RemoveSession(int sessionId)
+        public void RemoveSession(int sessionId)
         {
             if (!Sessions.TryRemove(sessionId, out _))
             {
@@ -231,6 +232,7 @@ namespace GuessMaster.Service.Service
                 Model.Constants.DoodleChamp.OrderOfPlayList
             );
 
+            UpdateSessionState(sessionId, Model.Constants.DoodleChamp.InGame);
             GameStarted?.Invoke(sessionId);
         }
 
@@ -247,7 +249,6 @@ namespace GuessMaster.Service.Service
             )
             {
                 Console.WriteLine($"Not enough players in session {sessionId}.");
-                StoppingLobbyTimer?.Invoke(sessionId);
                 _gameTimer.PauseTimer(sessionId);
 
                 switch (gameState)
@@ -260,13 +261,13 @@ namespace GuessMaster.Service.Service
                         {
                             _gameTimer.SetTimerLength(sessionId, Model.Constants.DoodleChamp.QuickLobbyCountdown);
                         }
-                        _gameTimer.UnpauseTimer(sessionId);
+                        GameRestart?.Invoke(sessionId);
 
                         break;
                     case Model.Constants.DoodleChamp.InGame:
                         Console.WriteLine($"Game ended for session {sessionId} due to insufficient players.");
                         _gameTimer.CancelTimer(sessionId);
-                        GameEnded?.Invoke(sessionId);
+                        GameEndedEarly?.Invoke(sessionId);
                         break;
                     default:
                         Console.WriteLine($"Unknown game state for session {sessionId}.");

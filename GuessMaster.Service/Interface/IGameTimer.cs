@@ -9,7 +9,7 @@ namespace GuessMaster.Service.Interface
     public interface IGameTimer
     {
         public void PauseTimer(int sessionId);
-        public void UnpauseTimer(int sessionId);
+        public void ResumeTimer(int sessionId);
         public void CancelTimer(int  sessionId);
         public int GetTimerLength(int sessionId);
         public void SetTimerLength(int sessionId, int timerLength);

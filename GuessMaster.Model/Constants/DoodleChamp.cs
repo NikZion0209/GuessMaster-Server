@@ -11,7 +11,7 @@ namespace GuessMaster.Model.Constants
         // Game settings
         public const int GameTypeId = 1;
         public const int MaxPlayers = 8;
-        public const int MinPlayers = 4;
+        public const int MinPlayers = 2;
 
         // State of play
         public const int PreGame = 0;

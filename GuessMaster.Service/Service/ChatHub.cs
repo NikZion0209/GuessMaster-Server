@@ -15,7 +15,7 @@ namespace GuessMaster.Service.Service
         public static event Action<int, string>? UserLeftRoom;
         public static event Action<int, int, string>? UserJoinedRoom;
 
-        private static readonly ConcurrentDictionary<int, List<string>> SessionUsers = new();
+        public static readonly ConcurrentDictionary<int, List<string>> SessionUsers = new();
 
         private void RemoveUserFromSession(int sessionId, string connectionId)
         {
@@ -56,6 +56,7 @@ namespace GuessMaster.Service.Service
         // Method for handling disconnection from a room
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
+            Console.WriteLine($"User with connection ID {Context.ConnectionId} disconnected from the chat hub.");
             var sessionId = SessionUsers
                 .FirstOrDefault(kvp => kvp.Value.Any(ConnectionId => ConnectionId == Context.ConnectionId)).Key;
 
@@ -69,6 +70,7 @@ namespace GuessMaster.Service.Service
         // Method for leaving a room
         public async Task LeaveRoom(int sessionId)
         {
+            Console.WriteLine($"User with connection ID {Context.ConnectionId} voluntarily disconnected from the chat hub.");
             RemoveUserFromSession(sessionId, Context.ConnectionId);
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, sessionId.ToString());
             UserLeftRoom?.Invoke(sessionId, Context.ConnectionId);
@@ -82,7 +84,15 @@ namespace GuessMaster.Service.Service
 
         public async Task SendDrawing(int sessionId, string drawingData)
         {
-            await Clients.Group(sessionId.ToString()).SendAsync(ChatEventNames.RecieveDrawing, drawingData);
+            try
+            {
+                await Clients.Group(sessionId.ToString()).SendAsync(ChatEventNames.RecieveDrawing, drawingData);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error sending drawing data: {ex.Message}");
+
+            }
         }
     }
 }
