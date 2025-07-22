@@ -25,6 +25,7 @@ namespace GuessMaster.Service.Service
         public static event Action<int>? GameEndedEarly;
         public static event Action<int, List<User>>? UpdatePlayerLeaderboard;
         public static event Action<int, string, string>? NotifyUserTurn;
+        public static event Action<string>? NotifyEndUserTurn;
 
         public DoodleChamp(IGameTimer gameTimer)
         {
@@ -120,6 +121,18 @@ namespace GuessMaster.Service.Service
             if (Sessions.TryGetValue(sessionId, out var session))
             {
                 connectionId = session.UsersTurn;
+            }
+            else
+            {
+                throw new KeyNotFoundException($"Session {sessionId} not found.");
+            }
+        }
+
+        private void ResetSessionUsersTurn(int sessionId)
+        {
+            if (Sessions.TryGetValue(sessionId, out var session))
+            {
+                session.UsersTurn = string.Empty;
             }
             else
             {
@@ -290,6 +303,7 @@ namespace GuessMaster.Service.Service
                     Gamemodes.DoodleChamp
                 );
 
+                NotifyEndUserTurn?.Invoke(user.ConnectionId);
                 // Round summary timer
                 await _gameTimer.StartTimer(
                     sessionId,
@@ -366,6 +380,7 @@ namespace GuessMaster.Service.Service
             if (gameState == Model.Constants.DoodleChamp.InGame && connectionId == currentTurnConnectionId)
             {
                 _gameTimer.CancelTimer(sessionId);
+                ResetSessionUsersTurn(sessionId);
             }
         }
 

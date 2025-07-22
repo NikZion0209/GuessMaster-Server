@@ -32,6 +32,7 @@ namespace GuessMaster.Service.Event_Handlers
             Service.DoodleChamp.GameEndedEarly += OnGameEndEarly;
             Service.DoodleChamp.UpdatePlayerLeaderboard += OnUpdatePlayerLeaderboard;
             Service.DoodleChamp.NotifyUserTurn += OnUserTurn;
+            Service.DoodleChamp.NotifyEndUserTurn += OnEndUserTurn;
         }
 
         public void Unsubscribe()
@@ -48,6 +49,7 @@ namespace GuessMaster.Service.Event_Handlers
             Service.DoodleChamp.GameEndedEarly -= OnGameEndEarly;
             Service.DoodleChamp.UpdatePlayerLeaderboard -= OnUpdatePlayerLeaderboard;
             Service.DoodleChamp.NotifyUserTurn -= OnUserTurn;
+            Service.DoodleChamp.NotifyEndUserTurn -= OnEndUserTurn;
         }
 
         private void OnUserJoinedRoom(int sessionId, int userId, string connectionId)
@@ -135,10 +137,16 @@ namespace GuessMaster.Service.Event_Handlers
         private void OnUserTurn(int sessionId, string connectionId, string username)
         {
             _hubContext.Clients.Client(connectionId)
-                .SendAsync(ChatEventNames.UserTurn);
+                .SendAsync(ChatEventNames.UserTurn, true);
 
             _hubContext.Clients.Group(sessionId.ToString())
                 .SendAsync(ChatEventNames.RoomMessage, $"{username} is the drawer");
+        }
+
+        private void OnEndUserTurn(string connectionId)
+        {
+            _hubContext.Clients.Client(connectionId)
+                .SendAsync(ChatEventNames.UserTurn, false);
         }
 
         private void OnLookoutCondition(int sessionId, string lookoutCondition)

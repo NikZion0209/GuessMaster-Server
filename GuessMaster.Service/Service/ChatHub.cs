@@ -1,12 +1,13 @@
-﻿using GuessMaster.Model.Models;
+﻿using GuessMaster.Model.Constants;
+using GuessMaster.Model.Models;
 using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using GuessMaster.Model.Constants;
 
 namespace GuessMaster.Service.Service
 {
@@ -94,12 +95,23 @@ namespace GuessMaster.Service.Service
         {
             try
             {
-                await Clients.Group(sessionId.ToString()).SendAsync(ChatEventNames.RecieveDrawing, drawingData);
+                await Clients.GroupExcept(sessionId.ToString(), [Context.ConnectionId]).SendAsync(ChatEventNames.RecieveDrawing, drawingData);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error sending drawing data: {ex.Message}");
+            }
+        }
 
+        public async Task SendDrawingBrush(int sessionId, BrushData brushData)
+        {
+            try
+            {
+                await Clients.GroupExcept(sessionId.ToString(), [Context.ConnectionId]).SendAsync(ChatEventNames.ReceiveBrushDrawing, brushData);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error sending drawing data: {ex.Message}");
             }
         }
     }
