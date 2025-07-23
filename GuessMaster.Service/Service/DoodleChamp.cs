@@ -4,6 +4,7 @@ using GuessMaster.Model.Models;
 using GuessMaster.Service.Interface;
 using System;
 using System.Collections.Concurrent;
+using System.Text.Json;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -26,6 +27,7 @@ namespace GuessMaster.Service.Service
         public static event Action<int, List<User>>? UpdatePlayerLeaderboard;
         public static event Action<int, string, string>? NotifyUserTurn;
         public static event Action<string>? NotifyEndUserTurn;
+        public static event Action<int, string, List<string>>? SendGeneratedPrompts;
 
         public DoodleChamp(IGameTimer gameTimer)
         {
@@ -114,6 +116,30 @@ namespace GuessMaster.Service.Service
         public bool CheckIfSessionExists(int sessionId)
         {
             return Sessions.ContainsKey(sessionId);
+        }
+
+        private void GetSessionPrompt(int sessionId, out string prompt)
+        {
+            if (Sessions.TryGetValue(sessionId, out var session))
+            {
+                prompt = session.SelectedPrompt;
+            }
+            else
+            {
+                throw new KeyNotFoundException($"Session {sessionId} not found.");
+            }
+        }
+
+        private void SetSessionPrompt(int sessionId, string prompt)
+        {
+            if (Sessions.TryGetValue(sessionId, out var session))
+            {
+                session.SelectedPrompt = prompt;
+            }
+            else
+            {
+                throw new KeyNotFoundException($"Session {sessionId} not found.");
+            }
         }
 
         private void GetSessionUsersTurn(int sessionId, out string connectionId)
@@ -286,6 +312,10 @@ namespace GuessMaster.Service.Service
             foreach (var user in users)
             {
                 UpdatePlayerTurn(sessionId, user.Username, user.ConnectionId);
+                GetSessionPrompt(sessionId, out string prompt);
+                List<string> prompts = GeneratePrompts(prompt);
+                SetSessionPrompt(sessionId, prompts[0]); // First prompt is default for the round
+                SendGeneratedPrompts?.Invoke(sessionId, user.ConnectionId, prompts);
 
                 // Select a prompt timer
                 await _gameTimer.StartTimer(
@@ -393,6 +423,20 @@ namespace GuessMaster.Service.Service
 
             UpdateSessionUsers(sessionId, orderedUsers);
             Console.WriteLine($"Order of play generated for session {sessionId}.");
+        }
+
+        private static List<string> GeneratePrompts(string previousPrompt)
+        {
+            string filePath = Model.Constants.DoodleChamp.PromptFilePath;
+
+            if (!File.Exists(filePath))
+                throw new FileNotFoundException("WordBank.json not found.", filePath);
+
+            var json = File.ReadAllText(filePath);
+            var words = JsonSerializer.Deserialize<List<string>>(json);
+
+            var random = new Random();
+            return words.OrderBy(_ => random.Next()).Take(Model.Constants.DoodleChamp.DisplayedPrompts).Where(word => word != previousPrompt).ToList();
         }
     }
 }

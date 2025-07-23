@@ -12,6 +12,8 @@ namespace GuessMaster.Model.Constants
         public const int GameTypeId = 1;
         public const int MaxPlayers = 8;
         public const int MinPlayers = 2;
+        public static readonly string PromptFilePath = Path.Combine(AppContext.BaseDirectory, "WordBank.json");
+        public const int DisplayedPrompts = 3;
 
         // State of play
         public const int PreGame = 0;
@@ -19,7 +21,6 @@ namespace GuessMaster.Model.Constants
         public const int InGame = 2;
         public const int RoundSummary = 3;
         public const int GameOver = 4;
-
 
         // Timer settings
         public const int LobbyCountdown = 5;
