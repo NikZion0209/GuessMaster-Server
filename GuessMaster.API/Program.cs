@@ -1,10 +1,12 @@
 using GuessMaster.API.Middleware;
 using GuessMaster.Data.Data;
 using GuessMaster.Repository;
+using GuessMaster.Repository.Interface;
+using GuessMaster.Repository.Repository;
 using GuessMaster.Service;
 using GuessMaster.Service.Event_Handlers;
-using GuessMaster.Service.Service;
 using GuessMaster.Service.Interface;
+using GuessMaster.Service.Service;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,6 +29,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Dependency Injection for repository and service managers
 builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
 builder.Services.AddScoped<IServiceManager, ServiceManager>();
+builder.Services.AddSingleton<IDoodleChampRepository, DoodleChampRepository>();
 
 builder.Services.AddSingleton<IDoodleChamp, DoodleChamp>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();

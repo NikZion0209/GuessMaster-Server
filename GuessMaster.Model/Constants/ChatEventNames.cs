@@ -23,5 +23,8 @@ namespace GuessMaster.Model.Constants
         public const string GameEndEarly = "GameEndEarly";
         public const string UserTurn = "UserTurn";
         public const string ReceiveBrushDrawing = "ReceiveBrushDrawing";
+        public const string SendGeneratedPrompts = "SendGeneratedPrompts";
+        public const string ReceiveGeneratedPrompts = "ReceiveGeneratedPrompts";
+        public const string PromptSelectionEnd = "PromptSelectionEnd";
     }
 }

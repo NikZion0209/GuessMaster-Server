@@ -20,12 +20,12 @@ namespace GuessMaster.Service
         private readonly Lazy<IGameTimer> _lazyGameTimer;
         private readonly Lazy<IDoodleChamp> _lazyDoodleChamp;
 
-        public ServiceManager(IRepositoryManager _repositoryManager, IHttpContextAccessor _httpContextAccessor)
+        public ServiceManager(IRepositoryManager _repositoryManager, IHttpContextAccessor _httpContextAccessor, IDoodleChampRepository _doodleChampRepository)
         {
             _lazyPlayerService = new Lazy<IPlayerService>(() => new PlayerService(_repositoryManager, _httpContextAccessor));
             _lazyGameTimer = new Lazy<IGameTimer>(() => new GameTimer());
-            _lazyDoodleChamp = new Lazy<IDoodleChamp>(() => new DoodleChamp(GameTimer));
-            _lazyGameService = new Lazy<IGameSessions>(() => new GameSessions(_repositoryManager, DoodleChamp));
+            _lazyDoodleChamp = new Lazy<IDoodleChamp>(() => new DoodleChamp(GameTimer , _doodleChampRepository));
+            _lazyGameService = new Lazy<IGameSessions>(() => new GameSessions(_repositoryManager, _doodleChampRepository));
         }
 
         public IPlayerService PlayerService => _lazyPlayerService.Value;

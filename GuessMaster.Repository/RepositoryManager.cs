@@ -12,7 +12,6 @@ namespace GuessMaster.Repository
     public class RepositoryManager : IRepositoryManager
     {
         private readonly Lazy<IPlayerRepository> _lazyPlayerRepository;
-
         public RepositoryManager(ApplicationDbContext _context)
         {
             _lazyPlayerRepository = new Lazy<IPlayerRepository>(() => new PlayerRepository(_context));

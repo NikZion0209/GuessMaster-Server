@@ -15,6 +15,7 @@ namespace GuessMaster.Service.Service
     {
         public static event Action<int, string>? UserLeftRoom;
         public static event Action<int, int, string>? UserJoinedRoom;
+        public static event Action<int, string>? SaveDrawingPrompt;
 
         public static readonly ConcurrentDictionary<int, List<string>> SessionUsers = new();
 
@@ -113,6 +114,11 @@ namespace GuessMaster.Service.Service
             {
                 Console.WriteLine($"Error sending drawing data: {ex.Message}");
             }
+        }
+
+        public void SendGeneratedPrompt(int sessionId, string prompt)
+        {
+            SaveDrawingPrompt?.Invoke(sessionId, prompt);
         }
     }
 }

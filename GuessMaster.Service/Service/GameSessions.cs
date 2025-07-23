@@ -2,6 +2,7 @@
 using GuessMaster.Model.Constants;
 using GuessMaster.Model.Models;
 using GuessMaster.Repository;
+using GuessMaster.Repository.Interface;
 using GuessMaster.Service.Interface;
 using System;
 using System.Collections.Generic;
@@ -14,12 +15,12 @@ namespace GuessMaster.Service.Service
     public class GameSessions : IGameSessions
     {
         private readonly IRepositoryManager _repositoryManager;
-        private readonly IDoodleChamp _doodleChamp;
+        private readonly IDoodleChampRepository _doodleChampRepository;
 
-        public GameSessions(IRepositoryManager repositoryManager, IDoodleChamp doodleChamp)
+        public GameSessions(IRepositoryManager repositoryManager, IDoodleChampRepository doodleChampRepository)
         {
             _repositoryManager = repositoryManager;
-            _doodleChamp = doodleChamp;
+            _doodleChampRepository = doodleChampRepository;
         }
 
         public class GameSessionDTO
@@ -36,11 +37,11 @@ namespace GuessMaster.Service.Service
                 switch (gameType)
                 {
                     case Gamemodes.DoodleChamp:
-                        _doodleChamp.GetAvailableSessions(out var availableSessions);
+                        _doodleChampRepository.GetAvailableSessions(out var availableSessions);
 
                         if (availableSessions == null || !availableSessions.Any())
                         {
-                            _doodleChamp.CreateNewSession(out availableSessions);
+                            _doodleChampRepository.CreateNewSession(out availableSessions);
                         }
 
                         return availableSessions.Select(s => new GameSessionDTO
@@ -69,7 +70,7 @@ namespace GuessMaster.Service.Service
                 switch (gameType)
                 {
                     case Gamemodes.DoodleChamp:
-                        _doodleChamp.AddUserToSession(sessionId, user);
+                        _doodleChampRepository.AddUserToSession(sessionId, user);
                         break;
                     default:
                         throw new ArgumentException("Invalid game type specified.");
