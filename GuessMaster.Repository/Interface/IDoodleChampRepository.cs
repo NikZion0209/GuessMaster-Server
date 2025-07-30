@@ -30,5 +30,13 @@ namespace GuessMaster.Repository.Interface
         public string GetUserNameByConnectionId(int sessionId, string connectionId);
         public void GenerateOrderOfPlay(int sessionId);
         public void UpdatePlayerTurn(int sessionId, string username);
+        public void IncrementGuessCount(int sessionId);
+        public void ResetGuessCount(int sessionId);
+        public void GetGuessCount(int sessionId, out int guessCount);
+        public void GetPlayerCount(int sessionId, out int playerCount);
+        public void GetCorrectUsers(int sessionId, out List<String> users);
+        public void AddCorrectUser(int sessionId, string username);
+        public void ResetCorrectUsers(int sessionId);
+        public void GetConnectionIdByUsername(int sessionId, string username, out string connectionId);
     }
 }

@@ -14,5 +14,7 @@ namespace GuessMaster.Model.Models
         public int MaxPlayers { get; set; } = Constants.DoodleChamp.MaxPlayers;
         public int GameType { get; set; } = Constants.Gamemodes.DoodleChamp;
         public string SelectedPrompt { get; set; } = string.Empty;
+        public int GuessedCorrectly { get; set; } = 0;
+        public List<string> GuessedUsers { get; set; } = new List<string>();
     }
 }

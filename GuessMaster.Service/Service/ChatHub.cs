@@ -16,6 +16,7 @@ namespace GuessMaster.Service.Service
         public static event Action<int, string>? UserLeftRoom;
         public static event Action<int, int, string>? UserJoinedRoom;
         public static event Action<int, string>? SaveDrawingPrompt;
+        public static event Action<int, string, string>? ResolveUserGuess;
 
         public static readonly ConcurrentDictionary<int, List<string>> SessionUsers = new();
 
@@ -87,9 +88,17 @@ namespace GuessMaster.Service.Service
         }
 
         // Method for broadcasting messages to the room
-        public async Task SendRoomMessage(int sessionId, string userName, string message)
+        public async Task SendRoomMessage(int sessionId, string userName, string message, bool isGuessing = false)
         {
-            await Clients.Group(sessionId.ToString()).SendAsync(ChatEventNames.RoomMessage, $"{userName} : {message}");
+            if (isGuessing)
+            {
+                ResolveUserGuess?.Invoke(sessionId, userName, message);
+            }
+            else
+            {
+                await Clients.Group(sessionId.ToString()).SendAsync(ChatEventNames.RoomMessage, $"{userName} : {message}");
+            }
+                
         }
 
         public async Task SendDrawing(int sessionId, string drawingData)

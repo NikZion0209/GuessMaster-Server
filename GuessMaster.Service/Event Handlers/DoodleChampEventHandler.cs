@@ -15,7 +15,10 @@ namespace GuessMaster.Service.Event_Handlers
         private readonly IDoodleChamp _doodleChamp;
         private readonly IDoodleChampRepository _doodleChampRepository;
 
-        public DoodleChampEventHandler(IHubContext<ChatHub> hubContext, IDoodleChamp doodleChamp, IDoodleChampRepository doodleChampRepository)
+        public DoodleChampEventHandler(IHubContext<ChatHub> hubContext,
+            IDoodleChamp doodleChamp,
+            IDoodleChampRepository doodleChampRepository
+        )
         {
             _hubContext = hubContext;
             _doodleChamp = doodleChamp;
@@ -27,6 +30,7 @@ namespace GuessMaster.Service.Event_Handlers
             ChatHub.UserJoinedRoom += OnUserJoinedRoom;
             ChatHub.UserLeftRoom += OnUserLeftRoom;
             ChatHub.SaveDrawingPrompt += OnSaveDrawingPrompt;
+            ChatHub.ResolveUserGuess += OnResolveUserGuess;
 
             GameTimer.TimerTick += OnTimerTick;
             GameTimer.DCLookoutConditionAction += OnLookoutCondition;
@@ -40,6 +44,10 @@ namespace GuessMaster.Service.Event_Handlers
             Service.DoodleChamp.NotifyEndUserTurn += OnEndUserTurn;
             Service.DoodleChamp.SendGeneratedPrompts += OnSendGeneratedPrompts;
             Service.DoodleChamp.NotifyPromptSelectionEnd += OnEndPromptSelection;
+            Service.DoodleChamp.NotifyWholeSession += OnNotifySession;
+            Service.DoodleChamp.NotifyUserInSession += OnNotifyUserInSession;
+            Service.DoodleChamp.ToggleSessionGuessAbility += OnGuessAbility;
+
         }
 
         public void Unsubscribe()
@@ -47,6 +55,7 @@ namespace GuessMaster.Service.Event_Handlers
             ChatHub.UserJoinedRoom -= OnUserJoinedRoom;
             ChatHub.UserLeftRoom -= OnUserLeftRoom;
             ChatHub.SaveDrawingPrompt -= OnSaveDrawingPrompt;
+            ChatHub.ResolveUserGuess -= OnResolveUserGuess;
 
             GameTimer.TimerTick -= OnTimerTick;
             GameTimer.DCLookoutConditionAction -= OnLookoutCondition;
@@ -60,6 +69,9 @@ namespace GuessMaster.Service.Event_Handlers
             Service.DoodleChamp.NotifyEndUserTurn -= OnEndUserTurn;
             Service.DoodleChamp.SendGeneratedPrompts -= OnSendGeneratedPrompts;
             Service.DoodleChamp.NotifyPromptSelectionEnd -= OnEndPromptSelection;
+            Service.DoodleChamp.NotifyWholeSession -= OnNotifySession;
+            Service.DoodleChamp.NotifyUserInSession -= OnNotifyUserInSession;
+            Service.DoodleChamp.ToggleSessionGuessAbility -= OnGuessAbility;
         }
 
         private void OnUserJoinedRoom(int sessionId, int userId, string connectionId)
@@ -182,6 +194,29 @@ namespace GuessMaster.Service.Event_Handlers
         private void OnSaveDrawingPrompt(int sessionId, string prompt)
         {
             _doodleChampRepository.SetSessionPrompt(sessionId, prompt);
+        }
+
+        private void OnResolveUserGuess(int sessionId, string username, string guess)
+        {
+            _doodleChamp.ResolveUserGuess(sessionId, username, guess);
+        }
+
+        private void OnNotifySession(int sessionId, string message)
+        {
+            _hubContext.Clients.Group(sessionId.ToString())
+                .SendAsync(ChatEventNames.RoomMessage, message);
+        }
+
+        private void OnNotifyUserInSession(int sessionId, string connectionId, string message)
+        {
+            _hubContext.Clients.Client(connectionId)
+                .SendAsync(ChatEventNames.RoomMessage, message);
+        }
+
+        private void OnGuessAbility(int sessionId, bool canGuess)
+        {
+            _hubContext.Clients.Group(sessionId.ToString())
+                .SendAsync(ChatEventNames.GuessingToggle, canGuess);
         }
     }
 }

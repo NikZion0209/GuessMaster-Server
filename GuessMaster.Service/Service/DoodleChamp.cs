@@ -23,6 +23,9 @@ namespace GuessMaster.Service.Service
         public static event Action<string>? NotifyEndUserTurn;
         public static event Action<int, string, List<string>>? SendGeneratedPrompts;
         public static event Action<int, string>? NotifyPromptSelectionEnd;
+        public static event Action<int, string>? NotifyWholeSession;
+        public static event Action<int, string, string>? NotifyUserInSession;
+        public static event Action<int, bool>? ToggleSessionGuessAbility;
 
         public DoodleChamp(IGameTimer gameTimer, IDoodleChampRepository doodleChampRepository)
         {
@@ -54,7 +57,7 @@ namespace GuessMaster.Service.Service
                     default:
                         return;
                 }
-                
+
             }
 
         }
@@ -65,9 +68,9 @@ namespace GuessMaster.Service.Service
             StartingLobbyTimer?.Invoke(sessionId);
 
             await _gameTimer.StartTimer(
-                sessionId, 
-                Model.Constants.DoodleChamp.LobbyTimer, 
-                Model.Constants.DoodleChamp.LobbyCountdown, 
+                sessionId,
+                Model.Constants.DoodleChamp.LobbyTimer,
+                Model.Constants.DoodleChamp.LobbyCountdown,
                 Gamemodes.DoodleChamp,
                 Model.Constants.DoodleChamp.OrderOfPlayCountdown,
                 Model.Constants.DoodleChamp.OrderOfPlayList
@@ -89,32 +92,62 @@ namespace GuessMaster.Service.Service
                 SendGeneratedPrompts?.Invoke(sessionId, user.ConnectionId, prompts);
 
                 // Select a prompt timer
-                await _gameTimer.StartTimer(
-                    sessionId,
-                    Model.Constants.DoodleChamp.SelectionTimer,
-                    Model.Constants.DoodleChamp.SelectionCountDown,
-                    Gamemodes.DoodleChamp
-                );
+                try
+                {
+                    await _gameTimer.StartTimer(
+                        sessionId,
+                        Model.Constants.DoodleChamp.SelectionTimer,
+                        Model.Constants.DoodleChamp.SelectionCountDown,
+                        Gamemodes.DoodleChamp
+                    );
+                }
+                catch (OperationCanceledException ex)
+                {
+                    Console.WriteLine($"Timer for session {sessionId} was canceled.");
+                    continue; // Exit if the timer was canceled
+                }
 
                 NotifyPromptSelectionEnd?.Invoke(sessionId, user.ConnectionId);
+                ToggleSessionGuessAbility?.Invoke(sessionId, true);
 
                 // Drawing timer
-                await _gameTimer.StartTimer(
-                    sessionId,
-                    Model.Constants.DoodleChamp.DrawingTimer,
-                    Model.Constants.DoodleChamp.DrawingCountdown,
-                    Gamemodes.DoodleChamp
-                );
+                try
+                {
+                    await _gameTimer.StartTimer(
+                        sessionId,
+                        Model.Constants.DoodleChamp.DrawingTimer,
+                        Model.Constants.DoodleChamp.DrawingCountdown,
+                        Gamemodes.DoodleChamp
+                    );
+                }
+                catch (OperationCanceledException ex)
+                {
+                    Console.WriteLine($"Timer for session {sessionId} was canceled.");
+                    continue; // Exit if the timer was canceled
+                }
 
+                ToggleSessionGuessAbility?.Invoke(sessionId, false);
+                _doodleChampRepository.UpdateSessionState(sessionId, Model.Constants.DoodleChamp.RoundSummary);
                 NotifyEndUserTurn?.Invoke(user.ConnectionId);
+
                 // Round summary timer
-                await _gameTimer.StartTimer(
-                    sessionId,
-                    Model.Constants.DoodleChamp.RoundSummaryTimer,
-                    Model.Constants.DoodleChamp.RoundSummaryCountdown,
-                    Gamemodes.DoodleChamp
-                );
-            }  
+                try
+                {
+                    await _gameTimer.StartTimer(
+                        sessionId,
+                        Model.Constants.DoodleChamp.RoundSummaryTimer,
+                        Model.Constants.DoodleChamp.RoundSummaryCountdown,
+                        Gamemodes.DoodleChamp
+                    );
+                }
+                catch (OperationCanceledException ex)
+                {
+                    Console.WriteLine($"Timer for session {sessionId} was canceled.");
+                    continue; // Exit if the timer was canceled
+                }
+
+                _doodleChampRepository.UpdateSessionState(sessionId, Model.Constants.DoodleChamp.InGame);
+            }
         }
 
         public void RemoveFromSession(int sessionId, string connectionId)
@@ -125,7 +158,7 @@ namespace GuessMaster.Service.Service
             _doodleChampRepository.GetSessionState(sessionId, out int gameState);
 
             if (
-                currentUsers.Count < Model.Constants.DoodleChamp.MinPlayers && 
+                currentUsers.Count < Model.Constants.DoodleChamp.MinPlayers &&
                 (gameState == Model.Constants.DoodleChamp.Lobby || gameState == Model.Constants.DoodleChamp.InGame)
             )
             {
@@ -137,7 +170,7 @@ namespace GuessMaster.Service.Service
                     case Model.Constants.DoodleChamp.Lobby:
                         Console.WriteLine($"Lobby timer paused for session {sessionId} due to insufficient players.");
                         int time = _gameTimer.GetTimerLength(sessionId);
-                        
+
                         if (time < Model.Constants.DoodleChamp.QuickLobbyCountdown)
                         {
                             _gameTimer.SetTimerLength(sessionId, Model.Constants.DoodleChamp.QuickLobbyCountdown);
@@ -201,6 +234,44 @@ namespace GuessMaster.Service.Service
             catch (Exception ex)
             {
                 throw new Exception("Error reading or parsing WordBank.json", ex);
+            }
+        }
+
+        public void ResolveUserGuess(int sessionId, string username, string guess)
+        {
+            _doodleChampRepository.GetSessionPrompt(sessionId, out string prompt);
+            _doodleChampRepository.GetCorrectUsers(sessionId, out List<string> correctUsers);
+
+            //Correct Guess Logic
+            if (string.Equals(prompt, guess, StringComparison.OrdinalIgnoreCase))
+            {
+                if (!correctUsers.Contains(username))
+                {
+                    _doodleChampRepository.AddCorrectUser(sessionId, username);
+                    _doodleChampRepository.IncrementGuessCount(sessionId);
+                    NotifyWholeSession?.Invoke(sessionId, $"{username} has guessed the word!");
+                    OnCorrectGuess(sessionId);
+                    return;
+                }
+                // User has already guessed correctly
+                _doodleChampRepository.GetConnectionIdByUsername(sessionId, username, out string connectionId);
+                NotifyUserInSession?.Invoke(sessionId, connectionId, "You have already guessed correctly!");
+                return;
+            }
+            //Incorrect Guess Logic
+            NotifyWholeSession?.Invoke(sessionId, $"{username} : {guess}");
+            return;
+        }
+
+        private void OnCorrectGuess(int sessionId)
+        {
+            _doodleChampRepository.GetGuessCount(sessionId, out int guessCount);
+            _doodleChampRepository.GetPlayerCount(sessionId, out int playerCount);
+            _doodleChampRepository.GetSessionState(sessionId, out int gameState);
+
+            if ((guessCount >= playerCount - 1) && (gameState == Model.Constants.DoodleChamp.InGame))
+            {
+                _gameTimer.CancelTimer(sessionId);
             }
         }
     }

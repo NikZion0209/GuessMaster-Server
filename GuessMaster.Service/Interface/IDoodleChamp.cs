@@ -13,5 +13,6 @@ namespace GuessMaster.Service.Interface
         public Task StartGame(int sessionId);
         public void RemoveFromSession(int sessionId, string connectionId);
         public void CheckLobbyStatus(int sessionId);
+        public void ResolveUserGuess(int sessionId, string username, string guess);
     }
 }

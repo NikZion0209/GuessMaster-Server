@@ -26,5 +26,6 @@ namespace GuessMaster.Model.Constants
         public const string SendGeneratedPrompts = "SendGeneratedPrompts";
         public const string ReceiveGeneratedPrompts = "ReceiveGeneratedPrompts";
         public const string PromptSelectionEnd = "PromptSelectionEnd";
+        public const string GuessingToggle = "GuessingToggle";
     }
 }

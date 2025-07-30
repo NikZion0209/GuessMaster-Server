@@ -268,5 +268,120 @@ namespace GuessMaster.Repository.Repository
                 throw new KeyNotFoundException($"Session {sessionId} not found.");
             }
         }
+
+        public void GetGuessCount(int sessionId, out int guessCount)
+        {
+            if (Sessions.TryGetValue(sessionId, out var session))
+            {
+                guessCount = session.GuessedCorrectly;
+            }
+            else
+            {
+                throw new KeyNotFoundException($"Session {sessionId} not found.");
+            }
+        }
+
+        public void IncrementGuessCount(int sessionId)
+        {
+            if (Sessions.TryGetValue(sessionId, out var session))
+            {
+                session.GuessedCorrectly++;
+                Console.WriteLine($"Guess count incremented for session {sessionId}. Current count: {session.GuessedCorrectly}");
+            }
+            else
+            {
+                throw new KeyNotFoundException($"Session {sessionId} not found.");
+            }
+        }
+
+        public void ResetGuessCount(int sessionId)
+        {
+            if (Sessions.TryGetValue(sessionId, out var session))
+            {
+                session.GuessedCorrectly = 0;
+                Console.WriteLine($"Guess count reset for session {sessionId}.");
+            }
+            else
+            {
+                throw new KeyNotFoundException($"Session {sessionId} not found.");
+            }
+        }
+
+        public void GetPlayerCount(int sessionId, out int playerCount)
+        {
+            if (Sessions.TryGetValue(sessionId, out var session))
+            {
+                playerCount = session.PlayerCount;
+            }
+            else
+            {
+                throw new KeyNotFoundException($"Session {sessionId} not found.");
+            }
+        }
+
+        public void GetCorrectUsers(int sessionId, out List<String> users)
+        {
+            if (Sessions.TryGetValue(sessionId, out var session))
+            {
+                users = session.GuessedUsers;
+            }
+            else
+            {
+                throw new KeyNotFoundException($"Session {sessionId} not found.");
+            }
+        }
+
+        public void AddCorrectUser(int sessionId, string username)
+        {
+            if (Sessions.TryGetValue(sessionId, out var session))
+            {
+                if (!session.GuessedUsers.Contains(username))
+                {
+                    session.GuessedUsers.Add(username);
+                    Console.WriteLine($"{username} added to correct users in session {sessionId}.");
+                }
+                else
+                {
+                    Console.WriteLine($"{username} is already in the correct users list for session {sessionId}.");
+                }
+            }
+            else
+            {
+                throw new KeyNotFoundException($"Session {sessionId} not found.");
+            }
+        }
+
+        public void ResetCorrectUsers(int sessionId)
+        {
+            if (Sessions.TryGetValue(sessionId, out var session))
+            {
+                session.GuessedUsers.Clear();
+                Console.WriteLine($"Correct users list reset for session {sessionId}.");
+            }
+            else
+            {
+                throw new KeyNotFoundException($"Session {sessionId} not found.");
+            }
+        }
+
+        public void GetConnectionIdByUsername(int sessionId, string username, out string connectionId)
+        {
+            if (Sessions.TryGetValue(sessionId, out var session))
+            {
+                var user = session.ConnectedUsers.FirstOrDefault(u => u.Username == username);
+                if (user != null)
+                {
+                    connectionId = user.ConnectionId;
+                }
+                else
+                {
+                    throw new KeyNotFoundException($"User with username {username} not found in session {sessionId}.");
+                }
+            }
+            else
+            {
+                throw new KeyNotFoundException($"Session {sessionId} not found.");
+            }
+        }
     }
 }
