@@ -106,11 +106,15 @@ namespace GuessMaster.Service.Service
                         Model.Constants.DoodleChamp.SelectionCountDown,
                         Gamemodes.DoodleChamp
                     );
+                    Console.WriteLine($"Timer for session {sessionId} ended successfully.");
                 }
                 catch (OperationCanceledException ex)
                 {
                     Console.WriteLine($"Timer for session {sessionId} was canceled.");
-                    continue; // Exit if the timer was canceled
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Unexpected error in timer for session {sessionId}: {ex}");
                 }
 
                 NotifyPromptSelectionEnd?.Invoke(sessionId, user.ConnectionId);
@@ -135,7 +139,10 @@ namespace GuessMaster.Service.Service
                 catch (OperationCanceledException ex)
                 {
                     Console.WriteLine($"Timer for session {sessionId} was canceled.");
-                    continue; // Exit if the timer was canceled
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Unexpected error in timer for session {sessionId}: {ex}");
                 }
 
                 ToggleSessionGuessAbility?.Invoke(sessionId, false);
@@ -155,7 +162,10 @@ namespace GuessMaster.Service.Service
                 catch (OperationCanceledException ex)
                 {
                     Console.WriteLine($"Timer for session {sessionId} was canceled.");
-                    continue; // Exit if the timer was canceled
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Unexpected error in timer for session {sessionId}: {ex}");
                 }
 
                 _doodleChampRepository.UpdateSessionState(sessionId, Model.Constants.DoodleChamp.InGame);

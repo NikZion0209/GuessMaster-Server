@@ -79,13 +79,14 @@ namespace GuessMaster.Service.Service
         }
 
         public async Task StartTimer(
-            int sessionId, 
-            string timerName, 
-            int timerLength, 
-            int gameType, 
-            List<int>? lookoutCondition = null, 
+            int sessionId,
+            string timerName,
+            int timerLength,
+            int gameType,
+            List<int>? lookoutCondition = null,
             string? lookoutEvent = null
-        ) {
+        )
+        {
             bool timerExists = !(CreateTimer(sessionId, timerName, timerLength));
 
             if (timerExists)
@@ -96,8 +97,6 @@ namespace GuessMaster.Service.Service
 
             Model.Models.Timer sessionTimer = GetTimer(sessionId);
             var pauseEvent = PauseEvents[sessionId];
-
-            Console.WriteLine($"Timer {sessionTimer.name} has started for session {sessionId}.");
 
             while (sessionTimer.timer > 0)
             {
@@ -123,7 +122,7 @@ namespace GuessMaster.Service.Service
                     // Wait for resume, handled by pauseEvent.Wait()
                 }
 
-                if (lookoutCondition.Contains(sessionTimer.timer) && gameType == Gamemodes.DoodleChamp)
+                if (lookoutCondition != null && lookoutCondition.Contains(sessionTimer.timer) && gameType == Gamemodes.DoodleChamp)
                 {
                     DCLookoutConditionAction?.Invoke(sessionId, lookoutEvent ?? "Lookout condition met!");
                 }
