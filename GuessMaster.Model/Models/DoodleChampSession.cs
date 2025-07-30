@@ -16,5 +16,6 @@ namespace GuessMaster.Model.Models
         public string SelectedPrompt { get; set; } = string.Empty;
         public int GuessedCorrectly { get; set; } = 0;
         public List<string> GuessedUsers { get; set; } = new List<string>();
+        public List<int> ReleasedHintPositions { get; set; } = new List<int>();
     }
 }

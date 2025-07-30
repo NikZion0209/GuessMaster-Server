@@ -38,5 +38,8 @@ namespace GuessMaster.Repository.Interface
         public void AddCorrectUser(int sessionId, string username);
         public void ResetCorrectUsers(int sessionId);
         public void GetConnectionIdByUsername(int sessionId, string username, out string connectionId);
+        public void ResetReleasedHints(int sessionId);
+        public void AddReleasedHintPosition(int sessionId, int position);
+        public void GetReleasedHintPositions(int sessionId, out List<int> positions);
     }
 }

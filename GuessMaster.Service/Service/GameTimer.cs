@@ -83,7 +83,7 @@ namespace GuessMaster.Service.Service
             string timerName, 
             int timerLength, 
             int gameType, 
-            int? lookoutCondition = null, 
+            List<int>? lookoutCondition = null, 
             string? lookoutEvent = null
         ) {
             bool timerExists = !(CreateTimer(sessionId, timerName, timerLength));
@@ -123,7 +123,7 @@ namespace GuessMaster.Service.Service
                     // Wait for resume, handled by pauseEvent.Wait()
                 }
 
-                if (sessionTimer.timer == lookoutCondition && gameType == Gamemodes.DoodleChamp)
+                if (lookoutCondition.Contains(sessionTimer.timer) && gameType == Gamemodes.DoodleChamp)
                 {
                     DCLookoutConditionAction?.Invoke(sessionId, lookoutEvent ?? "Lookout condition met!");
                 }

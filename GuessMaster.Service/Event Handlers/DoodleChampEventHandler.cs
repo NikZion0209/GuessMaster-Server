@@ -47,6 +47,7 @@ namespace GuessMaster.Service.Event_Handlers
             Service.DoodleChamp.NotifyWholeSession += OnNotifySession;
             Service.DoodleChamp.NotifyUserInSession += OnNotifyUserInSession;
             Service.DoodleChamp.ToggleSessionGuessAbility += OnGuessAbility;
+            Service.DoodleChamp.ReleaseHintLength += OnReleaseHintLength;
 
         }
 
@@ -72,6 +73,7 @@ namespace GuessMaster.Service.Event_Handlers
             Service.DoodleChamp.NotifyWholeSession -= OnNotifySession;
             Service.DoodleChamp.NotifyUserInSession -= OnNotifyUserInSession;
             Service.DoodleChamp.ToggleSessionGuessAbility -= OnGuessAbility;
+            Service.DoodleChamp.ReleaseHintLength -= OnReleaseHintLength;
         }
 
         private void OnUserJoinedRoom(int sessionId, int userId, string connectionId)
@@ -177,6 +179,10 @@ namespace GuessMaster.Service.Event_Handlers
             {
                 _doodleChampRepository.GenerateOrderOfPlay(sessionId);
             }
+            if (lookoutCondition == Model.Constants.DoodleChamp.ReleaseHint)
+            {
+                ReleaseHint(sessionId);
+            }
         }
 
         private void OnSendGeneratedPrompts(int sessionId, string connectionId, List<string> prompts)
@@ -217,6 +223,19 @@ namespace GuessMaster.Service.Event_Handlers
         {
             _hubContext.Clients.Group(sessionId.ToString())
                 .SendAsync(ChatEventNames.GuessingToggle, canGuess);
+        }
+
+        private void OnReleaseHintLength(int sessionId, int length)
+        {
+            _hubContext.Clients.Group(sessionId.ToString())
+                .SendAsync(ChatEventNames.ReleaseHintLength, length);
+        }
+
+        private void ReleaseHint(int sessionId)
+        {
+            _doodleChamp.GetHintPosition(sessionId, out int hintPosition, out char hintLetter);
+            _hubContext.Clients.Group(sessionId.ToString())
+                .SendAsync(ChatEventNames.ReleaseHint, hintPosition, hintLetter);
         }
     }
 }

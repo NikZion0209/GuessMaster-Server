@@ -14,5 +14,6 @@ namespace GuessMaster.Service.Interface
         public void RemoveFromSession(int sessionId, string connectionId);
         public void CheckLobbyStatus(int sessionId);
         public void ResolveUserGuess(int sessionId, string username, string guess);
+        public void GetHintPosition(int sessionId, out int hintPosition, out char hintLetter);
     }
 }

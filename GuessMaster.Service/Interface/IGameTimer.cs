@@ -13,6 +13,6 @@ namespace GuessMaster.Service.Interface
         public void CancelTimer(int  sessionId);
         public int GetTimerLength(int sessionId);
         public void SetTimerLength(int sessionId, int timerLength);
-        public Task StartTimer(int sessionId, string timerName, int timerLength, int gameType, int? lookoutCondition = null, string? lookoutEvent = null);
+        public Task StartTimer(int sessionId, string timerName, int timerLength, int gameType, List<int>? lookoutCondition = null, string? lookoutEvent = null);
     }
 }

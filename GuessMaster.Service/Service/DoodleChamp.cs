@@ -4,6 +4,7 @@ using GuessMaster.Model.Models;
 using GuessMaster.Repository;
 using GuessMaster.Repository.Interface;
 using GuessMaster.Service.Interface;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 
 namespace GuessMaster.Service.Service
@@ -26,6 +27,7 @@ namespace GuessMaster.Service.Service
         public static event Action<int, string>? NotifyWholeSession;
         public static event Action<int, string, string>? NotifyUserInSession;
         public static event Action<int, bool>? ToggleSessionGuessAbility;
+        public static event Action<int, int>? ReleaseHintLength;
 
         public DoodleChamp(IGameTimer gameTimer, IDoodleChampRepository doodleChampRepository)
         {
@@ -72,7 +74,7 @@ namespace GuessMaster.Service.Service
                 Model.Constants.DoodleChamp.LobbyTimer,
                 Model.Constants.DoodleChamp.LobbyCountdown,
                 Gamemodes.DoodleChamp,
-                Model.Constants.DoodleChamp.OrderOfPlayCountdown,
+                [Model.Constants.DoodleChamp.OrderOfPlayCountdown],
                 Model.Constants.DoodleChamp.OrderOfPlayList
             );
 
@@ -83,6 +85,10 @@ namespace GuessMaster.Service.Service
 
             foreach (var user in users)
             {
+                _doodleChampRepository.ResetCorrectUsers(sessionId);
+                _doodleChampRepository.ResetGuessCount(sessionId);
+                _doodleChampRepository.ResetReleasedHints(sessionId);
+
                 _doodleChampRepository.UpdatePlayerTurn(sessionId, user.Username);
                 NotifyUserTurn?.Invoke(sessionId, user.ConnectionId, user.Username);
 
@@ -108,6 +114,10 @@ namespace GuessMaster.Service.Service
                 }
 
                 NotifyPromptSelectionEnd?.Invoke(sessionId, user.ConnectionId);
+                _doodleChampRepository.GetSessionPrompt(sessionId, out string selectedPrompt);
+                ReleaseHintLength?.Invoke(sessionId, selectedPrompt.Length);
+                DetermineHintRelease(selectedPrompt, out List<int> hintReleases);
+
                 ToggleSessionGuessAbility?.Invoke(sessionId, true);
 
                 // Drawing timer
@@ -117,7 +127,9 @@ namespace GuessMaster.Service.Service
                         sessionId,
                         Model.Constants.DoodleChamp.DrawingTimer,
                         Model.Constants.DoodleChamp.DrawingCountdown,
-                        Gamemodes.DoodleChamp
+                        Gamemodes.DoodleChamp,
+                        hintReleases,
+                        Model.Constants.DoodleChamp.ReleaseHint
                     );
                 }
                 catch (OperationCanceledException ex)
@@ -235,6 +247,38 @@ namespace GuessMaster.Service.Service
             {
                 throw new Exception("Error reading or parsing WordBank.json", ex);
             }
+        }
+
+        private void DetermineHintRelease(string prompt, out List<int> hintReleases)
+        {
+            hintReleases = new List<int>();
+
+            // Release hints up to 5 seconds before the end of the drawing phase
+            int matchLength = Model.Constants.DoodleChamp.DrawingCountdown - 5;
+            int amountToRelease = (int)(prompt.Length * Model.Constants.DoodleChamp.ReleaseAmount);
+            int sequenceRelease = matchLength / amountToRelease;
+
+            for (int sequence = sequenceRelease; sequence <= matchLength; sequence += sequenceRelease)
+            {
+                hintReleases.Add(sequence);
+            }
+        }
+
+        public void GetHintPosition(int sessionId, out int hintPosition, out char hintLetter)
+        {
+            _doodleChampRepository.GetSessionPrompt(sessionId, out string prompt);
+            _doodleChampRepository.GetReleasedHintPositions(sessionId, out List<int> hintReleases);
+
+            Random random = new Random();
+            hintPosition = random.Next(0, prompt.Length - 1);
+
+            while (hintReleases.Contains(hintPosition))
+            {
+                hintPosition = random.Next(0, prompt.Length - 1);
+            }
+
+            _doodleChampRepository.AddReleasedHintPosition(sessionId, hintPosition);
+            hintLetter = prompt[hintPosition];
         }
 
         public void ResolveUserGuess(int sessionId, string username, string guess)

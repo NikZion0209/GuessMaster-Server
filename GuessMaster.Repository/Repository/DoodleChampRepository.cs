@@ -383,5 +383,50 @@ namespace GuessMaster.Repository.Repository
                 throw new KeyNotFoundException($"Session {sessionId} not found.");
             }
         }
+
+        public void ResetReleasedHints(int sessionId)
+        {
+            if (Sessions.TryGetValue(sessionId, out var session))
+            {
+                session.ReleasedHintPositions.Clear();
+                Console.WriteLine($"Released hints reset for session {sessionId}.");
+            }
+            else
+            {
+                throw new KeyNotFoundException($"Session {sessionId} not found.");
+            }
+        }
+
+        public void AddReleasedHintPosition(int sessionId, int position)
+        {
+            if (Sessions.TryGetValue(sessionId, out var session))
+            {
+                if (!session.ReleasedHintPositions.Contains(position))
+                {
+                    session.ReleasedHintPositions.Add(position);
+                    Console.WriteLine($"Released hint position {position} added for session {sessionId}.");
+                }
+                else
+                {
+                    Console.WriteLine($"Released hint position {position} already exists for session {sessionId}.");
+                }
+            }
+            else
+            {
+                throw new KeyNotFoundException($"Session {sessionId} not found.");
+            }
+        }
+
+        public void GetReleasedHintPositions(int sessionId, out List<int> positions)
+        {
+            if (Sessions.TryGetValue(sessionId, out var session))
+            {
+                positions = session.ReleasedHintPositions;
+            }
+            else
+            {
+                throw new KeyNotFoundException($"Session {sessionId} not found.");
+            }
+        }
     }
 }
