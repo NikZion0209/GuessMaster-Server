@@ -43,6 +43,7 @@ namespace GuessMaster.Repository.Repository
             {
                 throw new InvalidOperationException($"Session {sessionId} does not exist.");
             }
+            Console.WriteLine($"Session {sessionId} removed successfully.");
         }
 
         public void RemoveUserFromSession(int sessionId, string connectionId)
@@ -495,6 +496,42 @@ namespace GuessMaster.Repository.Repository
                 }
                 Console.WriteLine($"Scores incremented by {score} for all users in session {sessionId}.");
                 UpdatePlayerLeaderboard?.Invoke(sessionId, session.ConnectedUsers);
+            }
+            else
+            {
+                throw new KeyNotFoundException($"Session {sessionId} not found.");
+            }
+        }
+
+        public void ResetGameSession(int sessionId)
+        {
+            if (Sessions.TryGetValue(sessionId, out var session))
+            {
+                session.GameState = Model.Constants.DoodleChamp.PreGame;
+                session.SelectedPrompt = string.Empty;
+                session.UsersTurn = string.Empty;
+                session.GuessedCorrectly = 0;
+                session.GuessedUsers.Clear();
+                session.ReleasedHintPositions.Clear();
+
+                ResetUserScores(sessionId);
+                Console.WriteLine($"Game session {sessionId} has been reset.");
+            }
+            else
+            {
+                throw new KeyNotFoundException($"Session {sessionId} not found.");
+            }
+        }
+
+        public void ResetGameRound(int sessionId)
+        {
+            if (Sessions.TryGetValue(sessionId, out var session))
+            {
+                session.GameState =  Model.Constants.DoodleChamp.InGame;
+                session.GuessedCorrectly = 0;
+                session.GuessedUsers.Clear();
+                session.ReleasedHintPositions.Clear();
+                Console.WriteLine($"Game round for session {sessionId} has been reset.");
             }
             else
             {

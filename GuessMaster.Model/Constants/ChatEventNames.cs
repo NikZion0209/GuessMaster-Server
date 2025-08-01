@@ -30,5 +30,7 @@ namespace GuessMaster.Model.Constants
         public const string ReleaseHint = "ReleaseHint";
         public const string ReleaseHintLength = "ReleaseHintLength";
         public const string RoundSummaryOverlay = "RoundSummaryOverlay";
+        public const string GameEnd = "GameEnd";
+        public const string ResetChat = "ResetChat";
     }
 }

@@ -14,7 +14,7 @@ namespace GuessMaster.Model.Constants
         public const int MinPlayers = 2;
         public static readonly string PromptFilePath = Path.Combine(AppContext.BaseDirectory, "Constants", "WordBank.json");
         public const int DisplayedPrompts = 3;
-        public const float ReleaseAmount = 0.75f; // Percentage of prompt displayed for hinting
+        public const float ReleaseAmount = 0.67f; // Percentage of prompt displayed for hinting
         public const int HintCutOff = 5; // Cut-off for when hints can't be given anymore
 
         // State of play
@@ -31,12 +31,14 @@ namespace GuessMaster.Model.Constants
         public const int SelectionCountDown = 10;
         public const int DrawingCountdown = 40 + HintCutOff;
         public const int RoundSummaryCountdown = 5;
+        public const int EndGameCountdown = 15;
 
         // Timer names
         public const string LobbyTimer = "Lobby Timer";
         public const string SelectionTimer = "Selection Timer";
         public const string DrawingTimer = "Drawing Timer";
         public const string RoundSummaryTimer = "Round Summary Timer";
+        public const string EndGameTimer = "End Game Timer";
 
         // Event names
         public const string OrderOfPlayList = "Order of Play List";

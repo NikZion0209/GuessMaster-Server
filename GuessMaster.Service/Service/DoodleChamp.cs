@@ -6,6 +6,7 @@ using GuessMaster.Repository.Interface;
 using GuessMaster.Service.Interface;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace GuessMaster.Service.Service
 {
@@ -29,6 +30,7 @@ namespace GuessMaster.Service.Service
         public static event Action<int, bool>? ToggleSessionGuessAbility;
         public static event Action<int, int>? ReleaseHintLength;
         public static event Action<int, bool>? ToggleRoundSummaryOverlay;
+        public static event Action<int, bool>? GameEnd;
 
         public DoodleChamp(IGameTimer gameTimer, IDoodleChampRepository doodleChampRepository)
         {
@@ -84,11 +86,10 @@ namespace GuessMaster.Service.Service
 
             _doodleChampRepository.GetSessionUsers(sessionId, out var users);
 
-            foreach (var user in users)
+            for (int i = 0; i < users.Count; i++)
             {
-                _doodleChampRepository.ResetCorrectUsers(sessionId);
-                _doodleChampRepository.ResetGuessCount(sessionId);
-                _doodleChampRepository.ResetReleasedHints(sessionId);
+                var user = users[i];
+                _doodleChampRepository.ResetGameRound(sessionId);
 
                 _doodleChampRepository.UpdatePlayerTurn(sessionId, user.Username);
                 NotifyUserTurn?.Invoke(sessionId, user.ConnectionId, user.Username);
@@ -149,29 +150,58 @@ namespace GuessMaster.Service.Service
                 ToggleSessionGuessAbility?.Invoke(sessionId, false);
                 _doodleChampRepository.UpdateSessionState(sessionId, Model.Constants.DoodleChamp.RoundSummary);
                 NotifyEndUserTurn?.Invoke(user.ConnectionId);
-                ToggleRoundSummaryOverlay?.Invoke(sessionId, true);
 
-                // Round summary timer
-                try
+                if (i < users.Count - 1)
                 {
-                    await _gameTimer.StartTimer(
-                        sessionId,
-                        Model.Constants.DoodleChamp.RoundSummaryTimer,
-                        Model.Constants.DoodleChamp.RoundSummaryCountdown,
-                        Gamemodes.DoodleChamp
-                    );
-                }
-                catch (OperationCanceledException ex)
-                {
-                    Console.WriteLine($"Timer for session {sessionId} was canceled.");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Unexpected error in timer for session {sessionId}: {ex}");
-                }
-                ToggleRoundSummaryOverlay?.Invoke(sessionId, false);
-                _doodleChampRepository.UpdateSessionState(sessionId, Model.Constants.DoodleChamp.InGame);
+                    ToggleRoundSummaryOverlay?.Invoke(sessionId, true);
+
+                    // Round summary timer
+                    try
+                    {
+                        await _gameTimer.StartTimer(
+                            sessionId,
+                            Model.Constants.DoodleChamp.RoundSummaryTimer,
+                            Model.Constants.DoodleChamp.RoundSummaryCountdown,
+                            Gamemodes.DoodleChamp
+                        );
+                    }
+                    catch (OperationCanceledException ex)
+                    {
+                        Console.WriteLine($"Timer for session {sessionId} was canceled.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Unexpected error in timer for session {sessionId}: {ex}");
+                    }
+                        ToggleRoundSummaryOverlay?.Invoke(sessionId, false);
+                    }
             }
+            EndGame(sessionId);
+        }
+
+        private async Task EndGame(int sessionId)
+        {
+            _doodleChampRepository.UpdateSessionState(sessionId, Model.Constants.DoodleChamp.GameOver);
+            GameEnd?.Invoke(sessionId, true);
+
+            await _gameTimer.StartTimer(
+                sessionId,
+                Model.Constants.DoodleChamp.EndGameTimer,
+                Model.Constants.DoodleChamp.EndGameCountdown,
+                Gamemodes.DoodleChamp
+            );
+
+            _doodleChampRepository.GetSessionUsers(sessionId, out List<ConnectedUser> users);
+            if (users.Count == 0)
+            {
+                _doodleChampRepository.RemoveSession(sessionId);
+                return;
+            }
+
+            _doodleChampRepository.ResetGameSession(sessionId);
+            GameEnd?.Invoke(sessionId, false);
+            GameRestart?.Invoke(sessionId);
+            CheckLobbyStatus(sessionId);
         }
 
         public void RemoveFromSession(int sessionId, string connectionId)
@@ -181,9 +211,21 @@ namespace GuessMaster.Service.Service
             _doodleChampRepository.GetSessionUsers(sessionId, out List<ConnectedUser> currentUsers);
             _doodleChampRepository.GetSessionState(sessionId, out int gameState);
 
+            var formattedUsers = currentUsers.Select(user => new ConnectedUser
+            {
+                Username = user.Username,
+                AvatarUrl = user.AvatarUrl,
+                Score = user.Score,
+            }).ToList();
+            UpdatePlayerLeaderboard?.Invoke(sessionId, formattedUsers);
+
             if (
                 currentUsers.Count < Model.Constants.DoodleChamp.MinPlayers &&
-                (gameState == Model.Constants.DoodleChamp.Lobby || gameState == Model.Constants.DoodleChamp.InGame)
+                (
+                gameState == Model.Constants.DoodleChamp.Lobby || 
+                gameState == Model.Constants.DoodleChamp.InGame || 
+                gameState == Model.Constants.DoodleChamp.RoundSummary
+                )
             )
             {
                 Console.WriteLine($"Not enough players in session {sessionId}.");
@@ -207,20 +249,17 @@ namespace GuessMaster.Service.Service
                         _gameTimer.CancelTimer(sessionId);
                         GameEndedEarly?.Invoke(sessionId);
                         break;
+                    case Model.Constants.DoodleChamp.RoundSummary:
+                        Console.WriteLine($"Game ended for session {sessionId} due to insufficient players.");
+                        _gameTimer.CancelTimer(sessionId);
+                        GameEndedEarly?.Invoke(sessionId);
+                        break;
                     default:
                         Console.WriteLine($"Unknown game state for session {sessionId}.");
                         break;
                 }
                 return;
             }
-
-            var formattedUsers = currentUsers.Select(user => new ConnectedUser
-            {
-                Username = user.Username,
-                AvatarUrl = user.AvatarUrl,
-                Score = user.Score,
-            }).ToList();
-            UpdatePlayerLeaderboard?.Invoke(sessionId, formattedUsers);
 
             _doodleChampRepository.GetSessionUsersTurn(sessionId, out string currentTurnConnectionId);
 

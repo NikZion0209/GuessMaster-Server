@@ -51,6 +51,7 @@ namespace GuessMaster.Service.Event_Handlers
             Service.DoodleChamp.ToggleSessionGuessAbility += OnGuessAbility;
             Service.DoodleChamp.ReleaseHintLength += OnReleaseHintLength;
             Service.DoodleChamp.ToggleRoundSummaryOverlay += OnToggleRoundSummaryOverlay;
+            Service.DoodleChamp.GameEnd += OnGameEnd;
         }
 
         public void Unsubscribe()
@@ -79,6 +80,7 @@ namespace GuessMaster.Service.Event_Handlers
             Service.DoodleChamp.ToggleSessionGuessAbility -= OnGuessAbility;
             Service.DoodleChamp.ReleaseHintLength -= OnReleaseHintLength;
             Service.DoodleChamp.ToggleRoundSummaryOverlay -= OnToggleRoundSummaryOverlay;
+            Service.DoodleChamp.GameEnd -= OnGameEnd;
         }
 
         private void OnUserJoinedRoom(int sessionId, int userId, string connectionId)
@@ -141,7 +143,11 @@ namespace GuessMaster.Service.Event_Handlers
         private void OnGameRestart(int sessionId)
         {
             _hubContext.Clients.Group(sessionId.ToString())
+                .SendAsync(ChatEventNames.ResetChat);
+            _hubContext.Clients.Group(sessionId.ToString())
                 .SendAsync(ChatEventNames.LobbyTimerStarted, false);
+            _hubContext.Clients.Group(sessionId.ToString())
+                .SendAsync(ChatEventNames.GameState, false);
         }
 
         private async void OnGameEndEarly(int sessionId)
@@ -248,6 +254,12 @@ namespace GuessMaster.Service.Event_Handlers
         {
             _hubContext.Clients.Group(sessionId.ToString())
                 .SendAsync(ChatEventNames.RoundSummaryOverlay, isVisible);
+        }
+
+        private void OnGameEnd(int sessionId, bool end)
+        {
+            _hubContext.Clients.Group(sessionId.ToString())
+                .SendAsync(ChatEventNames.GameEnd, end);
         }
     }
 }
