@@ -29,5 +29,6 @@ namespace GuessMaster.Model.Constants
         public const string GuessingToggle = "GuessingToggle";
         public const string ReleaseHint = "ReleaseHint";
         public const string ReleaseHintLength = "ReleaseHintLength";
+        public const string RoundSummaryOverlay = "RoundSummaryOverlay";
     }
 }

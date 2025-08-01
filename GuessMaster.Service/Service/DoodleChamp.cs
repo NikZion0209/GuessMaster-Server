@@ -28,6 +28,7 @@ namespace GuessMaster.Service.Service
         public static event Action<int, string, string>? NotifyUserInSession;
         public static event Action<int, bool>? ToggleSessionGuessAbility;
         public static event Action<int, int>? ReleaseHintLength;
+        public static event Action<int, bool>? ToggleRoundSummaryOverlay;
 
         public DoodleChamp(IGameTimer gameTimer, IDoodleChampRepository doodleChampRepository)
         {
@@ -148,6 +149,7 @@ namespace GuessMaster.Service.Service
                 ToggleSessionGuessAbility?.Invoke(sessionId, false);
                 _doodleChampRepository.UpdateSessionState(sessionId, Model.Constants.DoodleChamp.RoundSummary);
                 NotifyEndUserTurn?.Invoke(user.ConnectionId);
+                ToggleRoundSummaryOverlay?.Invoke(sessionId, true);
 
                 // Round summary timer
                 try
@@ -167,7 +169,7 @@ namespace GuessMaster.Service.Service
                 {
                     Console.WriteLine($"Unexpected error in timer for session {sessionId}: {ex}");
                 }
-
+                ToggleRoundSummaryOverlay?.Invoke(sessionId, false);
                 _doodleChampRepository.UpdateSessionState(sessionId, Model.Constants.DoodleChamp.InGame);
             }
         }

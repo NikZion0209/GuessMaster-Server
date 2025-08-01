@@ -50,7 +50,7 @@ namespace GuessMaster.Service.Event_Handlers
             Service.DoodleChamp.NotifyUserInSession += OnNotifyUserInSession;
             Service.DoodleChamp.ToggleSessionGuessAbility += OnGuessAbility;
             Service.DoodleChamp.ReleaseHintLength += OnReleaseHintLength;
-
+            Service.DoodleChamp.ToggleRoundSummaryOverlay += OnToggleRoundSummaryOverlay;
         }
 
         public void Unsubscribe()
@@ -78,6 +78,7 @@ namespace GuessMaster.Service.Event_Handlers
             Service.DoodleChamp.NotifyUserInSession -= OnNotifyUserInSession;
             Service.DoodleChamp.ToggleSessionGuessAbility -= OnGuessAbility;
             Service.DoodleChamp.ReleaseHintLength -= OnReleaseHintLength;
+            Service.DoodleChamp.ToggleRoundSummaryOverlay -= OnToggleRoundSummaryOverlay;
         }
 
         private void OnUserJoinedRoom(int sessionId, int userId, string connectionId)
@@ -241,6 +242,12 @@ namespace GuessMaster.Service.Event_Handlers
             _doodleChamp.GetHintPosition(sessionId, out int hintPosition, out char hintLetter);
             _hubContext.Clients.Group(sessionId.ToString())
                 .SendAsync(ChatEventNames.ReleaseHint, hintPosition, hintLetter);
+        }
+
+        private void OnToggleRoundSummaryOverlay(int sessionId, bool isVisible)
+        {
+            _hubContext.Clients.Group(sessionId.ToString())
+                .SendAsync(ChatEventNames.RoundSummaryOverlay, isVisible);
         }
     }
 }
