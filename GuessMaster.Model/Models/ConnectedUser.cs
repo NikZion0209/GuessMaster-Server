@@ -11,5 +11,6 @@ namespace GuessMaster.Model.Models
     {
         public string ConnectionId { get; set; } = string.Empty;
         public string GuessMasterDrawing { get; set; } = string.Empty;
+        public int Score { get; set; } = 0;
     }
 }

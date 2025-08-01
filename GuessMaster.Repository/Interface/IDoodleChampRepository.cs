@@ -21,7 +21,7 @@ namespace GuessMaster.Repository.Interface
         public bool CheckIfSessionExists(int sessionId);
         public void GetSessionPrompt(int sessionId, out string prompt);
         public void SetSessionPrompt(int sessionId, string prompt);
-        public void GetSessionUsersTurn(int sessionId, out string connectionId);
+        public void GetSessionUsersTurn(int sessionId, out string username);
         public void ResetSessionUsersTurn(int sessionId);
         public void GetAvailableSessions(out List<DoodleChampSession> availableSessions);
         public void AddUserToSession(int sessionId, User user);
@@ -41,5 +41,9 @@ namespace GuessMaster.Repository.Interface
         public void ResetReleasedHints(int sessionId);
         public void AddReleasedHintPosition(int sessionId, int position);
         public void GetReleasedHintPositions(int sessionId, out List<int> positions);
+        public void ResetUserScores(int sessionId);
+        public void IncrementUserScore(int sessionId, string username, int score);
+        public void SetSessionUsersTurn(int sessionId, string username);
+        public void IncrementSessionScores(int sessionId, int score, List<string>? exceptionUsers = null);
     }
 }

@@ -19,7 +19,7 @@ namespace GuessMaster.Service.Service
         public static event Action<int>? GameStarted;
         public static event Action<int>? GameRestart;
         public static event Action<int>? GameEndedEarly;
-        public static event Action<int, List<User>>? UpdatePlayerLeaderboard;
+        public static event Action<int, List<ConnectedUser>>? UpdatePlayerLeaderboard;
         public static event Action<int, string, string>? NotifyUserTurn;
         public static event Action<string>? NotifyEndUserTurn;
         public static event Action<int, string, List<string>>? SendGeneratedPrompts;
@@ -212,10 +212,11 @@ namespace GuessMaster.Service.Service
                 return;
             }
 
-            var formattedUsers = currentUsers.Select(user => new User
+            var formattedUsers = currentUsers.Select(user => new ConnectedUser
             {
                 Username = user.Username,
-                AvatarUrl = user.AvatarUrl
+                AvatarUrl = user.AvatarUrl,
+                Score = user.Score,
             }).ToList();
             UpdatePlayerLeaderboard?.Invoke(sessionId, formattedUsers);
 
@@ -304,7 +305,7 @@ namespace GuessMaster.Service.Service
                     _doodleChampRepository.AddCorrectUser(sessionId, username);
                     _doodleChampRepository.IncrementGuessCount(sessionId);
                     NotifyWholeSession?.Invoke(sessionId, $"{username} has guessed the word!");
-                    OnCorrectGuess(sessionId);
+                    OnCorrectGuess(sessionId, username);
                     return;
                 }
                 // User has already guessed correctly
@@ -317,14 +318,40 @@ namespace GuessMaster.Service.Service
             return;
         }
 
-        private void OnCorrectGuess(int sessionId)
+        private void OnCorrectGuess(int sessionId, string correctUsername)
         {
+            _doodleChampRepository.GetSessionUsersTurn(sessionId, out string currentArtistUsername);
             _doodleChampRepository.GetGuessCount(sessionId, out int guessCount);
             _doodleChampRepository.GetPlayerCount(sessionId, out int playerCount);
             _doodleChampRepository.GetSessionState(sessionId, out int gameState);
+            int remainderTimer = _gameTimer.GetTimerLength(sessionId);
 
+            // Artist Score Logic
+            _doodleChampRepository.IncrementUserScore(sessionId, currentArtistUsername, (Model.Constants.DoodleChamp.CorrectArtistScore * guessCount));
+
+            // Correct User Score Logic
+            switch(guessCount)
+            {
+                case 1:
+                    _doodleChampRepository.IncrementUserScore(sessionId, correctUsername, (Model.Constants.DoodleChamp.CorrectFirstGuessScore + remainderTimer));
+                    break;
+                case 2:
+                    _doodleChampRepository.IncrementUserScore(sessionId, correctUsername, (Model.Constants.DoodleChamp.CorrectSecondGuessScore + remainderTimer));
+                    break;
+                case 3:
+                    _doodleChampRepository.IncrementUserScore(sessionId, correctUsername, (Model.Constants.DoodleChamp.CorrectThirdGuessScore + remainderTimer));
+                    break;
+                default:
+                    _doodleChampRepository.IncrementUserScore(sessionId, correctUsername, (Model.Constants.DoodleChamp.CorrectSubsequentGuessScore + remainderTimer));
+                    break;
+            }
+
+            // Check if all users have guessed correctly
             if ((guessCount >= playerCount - 1) && (gameState == Model.Constants.DoodleChamp.InGame))
             {
+                _doodleChampRepository.IncrementUserScore(sessionId, currentArtistUsername, (Model.Constants.DoodleChamp.AllCorrectArtistScore * (remainderTimer/ Model.Constants.DoodleChamp.DrawingCountdown)));
+                _doodleChampRepository.IncrementSessionScores(sessionId, (Model.Constants.DoodleChamp.AllCorrectUserScore * playerCount));
+                // End the game round
                 _gameTimer.CancelTimer(sessionId);
             }
         }

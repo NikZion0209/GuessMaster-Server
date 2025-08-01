@@ -41,5 +41,14 @@ namespace GuessMaster.Model.Constants
         // Event names
         public const string OrderOfPlayList = "Order of Play List";
         public const string ReleaseHint = "Release Hint";
+
+        // Scoring
+        public const int CorrectArtistScore = 10;
+        public const int AllCorrectArtistScore = 50;
+        public const int AllCorrectUserScore = 5;
+        public const int CorrectFirstGuessScore = 50;
+        public const int CorrectSecondGuessScore = 40;
+        public const int CorrectThirdGuessScore = 30;
+        public const int CorrectSubsequentGuessScore = 20;
     }
 }

@@ -35,6 +35,8 @@ namespace GuessMaster.Service.Event_Handlers
             GameTimer.TimerTick += OnTimerTick;
             GameTimer.DCLookoutConditionAction += OnLookoutCondition;
 
+            Repository.Repository.DoodleChampRepository.UpdatePlayerLeaderboard += OnUpdatePlayerLeaderboard;
+
             Service.DoodleChamp.StartingLobbyTimer += OnStartingLobbyTimer;
             Service.DoodleChamp.GameStarted += OnGameStart;
             Service.DoodleChamp.GameRestart += OnGameRestart;
@@ -61,6 +63,8 @@ namespace GuessMaster.Service.Event_Handlers
             GameTimer.TimerTick -= OnTimerTick;
             GameTimer.DCLookoutConditionAction -= OnLookoutCondition;
 
+            Repository.Repository.DoodleChampRepository.UpdatePlayerLeaderboard -= OnUpdatePlayerLeaderboard;
+
             Service.DoodleChamp.StartingLobbyTimer -= OnStartingLobbyTimer;
             Service.DoodleChamp.GameStarted -= OnGameStart;
             Service.DoodleChamp.GameRestart -= OnGameRestart;
@@ -81,10 +85,11 @@ namespace GuessMaster.Service.Event_Handlers
             _doodleChampRepository.UpdateUserConnectionId(sessionId, userId, connectionId);
             _doodleChampRepository.GetSessionUsers(sessionId, out List<ConnectedUser> users);
 
-            var formattedUsers = users.Select(user => new User
+            var formattedUsers = users.Select(user => new ConnectedUser
             {
                 Username = user.Username,
-                AvatarUrl = user.AvatarUrl
+                AvatarUrl = user.AvatarUrl,
+                Score = user.Score,
             }).ToList();
 
             OnUpdatePlayerLeaderboard(sessionId, formattedUsers);
@@ -107,7 +112,7 @@ namespace GuessMaster.Service.Event_Handlers
             }
         }
 
-        private void OnUpdatePlayerLeaderboard(int sessionId, List<User> users)
+        private void OnUpdatePlayerLeaderboard(int sessionId, List<ConnectedUser> users)
         {
             Console.WriteLine($"Notifiying users in session {sessionId} for UpdatePlayerLeaderboard event handler");
             _hubContext.Clients.Group(sessionId.ToString())

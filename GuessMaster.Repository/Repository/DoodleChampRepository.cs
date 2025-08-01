@@ -14,6 +14,8 @@ namespace GuessMaster.Repository.Repository
     {
         private readonly ConcurrentDictionary<int, DoodleChampSession> Sessions = new();
 
+        public static event Action<int, List<ConnectedUser>>? UpdatePlayerLeaderboard;
+
         public bool TryGetSession(int sessionId, out DoodleChampSession? session) => Sessions.TryGetValue(sessionId, out session);
 
         public void CreateNewSession(out List<DoodleChampSession> doodleChampSession)
@@ -143,11 +145,11 @@ namespace GuessMaster.Repository.Repository
             }
         }
 
-        public void GetSessionUsersTurn(int sessionId, out string connectionId)
+        public void GetSessionUsersTurn(int sessionId, out string username)
         {
             if (Sessions.TryGetValue(sessionId, out var session))
             {
-                connectionId = session.UsersTurn;
+                username = session.UsersTurn;
             }
             else
             {
@@ -160,6 +162,18 @@ namespace GuessMaster.Repository.Repository
             if (Sessions.TryGetValue(sessionId, out var session))
             {
                 session.UsersTurn = string.Empty;
+            }
+            else
+            {
+                throw new KeyNotFoundException($"Session {sessionId} not found.");
+            }
+        }
+
+        public void SetSessionUsersTurn(int sessionId, string username)
+        {
+            if (Sessions.TryGetValue(sessionId, out var session))
+            {
+                session.UsersTurn = username;
             }
             else
             {
@@ -422,6 +436,65 @@ namespace GuessMaster.Repository.Repository
             if (Sessions.TryGetValue(sessionId, out var session))
             {
                 positions = session.ReleasedHintPositions;
+            }
+            else
+            {
+                throw new KeyNotFoundException($"Session {sessionId} not found.");
+            }
+        }
+
+        public void ResetUserScores(int sessionId)
+        {
+            if (Sessions.TryGetValue(sessionId, out var session))
+            {
+                foreach (var user in session.ConnectedUsers)
+                {
+                    user.Score = 0; // Reset each user's score to 0
+                }
+                Console.WriteLine($"User scores reset for session {sessionId}.");
+            }
+            else
+            {
+                throw new KeyNotFoundException($"Session {sessionId} not found.");
+            }
+        }
+
+        public void IncrementUserScore(int sessionId, string username, int score)
+        {
+            if (Sessions.TryGetValue(sessionId, out var session))
+            {
+                var user = session.ConnectedUsers.FirstOrDefault(u => u.Username == username);
+                if (user != null)
+                {
+                    user.Score += score; // Update the user's score
+                    Console.WriteLine($"User {user.Username}'s score updated to {score} in session {sessionId}.");
+                    UpdatePlayerLeaderboard?.Invoke(sessionId, session.ConnectedUsers);
+                }
+                else
+                {
+                    throw new KeyNotFoundException($"User with username {username} not found in session {sessionId}.");
+                }
+            }
+            else
+            {
+                throw new KeyNotFoundException($"Session {sessionId} not found.");
+            }
+        }
+
+        public void IncrementSessionScores(int sessionId, int score, List<string>? exceptionUsers = null)
+        {
+            if (Sessions.TryGetValue(sessionId, out var session))
+            {
+                foreach (var user in session.ConnectedUsers)
+                {
+                    if (exceptionUsers != null && exceptionUsers.Contains(user.Username))
+                    {
+                        continue; // Skip the user with the specified connection ID
+                    }
+                    user.Score += score; // Increment each user's score by the specified amount
+                }
+                Console.WriteLine($"Scores incremented by {score} for all users in session {sessionId}.");
+                UpdatePlayerLeaderboard?.Invoke(sessionId, session.ConnectedUsers);
             }
             else
             {
