@@ -25,7 +25,7 @@ namespace GuessMaster.Model.Constants
         public const int GameOver = 4;
 
         // Timer settings
-        public const int LobbyCountdown = 5;
+        public const int LobbyCountdown = 20;
         public const int QuickLobbyCountdown = 10;
         public const int OrderOfPlayCountdown = 5;
         public const int SelectionCountDown = 10;
