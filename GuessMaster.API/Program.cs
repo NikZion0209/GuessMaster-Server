@@ -11,10 +11,13 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
 
-builder.WebHost.ConfigureKestrel(options =>
+if (builder.Environment.IsProduction())
 {
-    options.ListenAnyIP(5000); // Listens on 0.0.0.0:5000
-});
+    builder.WebHost.ConfigureKestrel(options =>
+    {
+        options.ListenAnyIP(5000); // Production: 0.0.0.0:5000
+    });
+}
 
 
 // Add services to the container.

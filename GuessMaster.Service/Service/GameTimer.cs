@@ -88,7 +88,7 @@ namespace GuessMaster.Service.Service
         )
         {
             bool timerExists = !(CreateTimer(sessionId, timerName, timerLength));
-
+            Console.WriteLine($"Timers count: {Timers.Count}, SessionId: {sessionId}");
             if (timerExists)
             {
                 Console.WriteLine($"Timer for session {sessionId} already exists. Cannot start a new timer, resuming existing timer");
@@ -128,7 +128,6 @@ namespace GuessMaster.Service.Service
                 }
 
                 TimerTick?.Invoke(sessionId, sessionTimer.timer);
-
                 await Task.Delay(1000); // Sleep for 1 second
                 sessionTimer.timer--;
             }

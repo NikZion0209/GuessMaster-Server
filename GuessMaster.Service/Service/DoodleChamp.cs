@@ -102,6 +102,7 @@ namespace GuessMaster.Service.Service
                 // Select a prompt timer
                 try
                 {
+                    Console.WriteLine($"About to start selection timer for session {sessionId}.");
                     await _gameTimer.StartTimer(
                         sessionId,
                         Model.Constants.DoodleChamp.SelectionTimer,
