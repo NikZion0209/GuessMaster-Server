@@ -1,4 +1,3 @@
-using GuessMaster.API.Middleware;
 using GuessMaster.Data.Data;
 using GuessMaster.Repository;
 using GuessMaster.Repository.Interface;
@@ -11,6 +10,12 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(5000); // Listens on 0.0.0.0:5000
+});
+
 
 // Add services to the container.
 
@@ -47,7 +52,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowSpecificOrigins", policy =>
     {
         // Allow requests from the specified origin
-        policy.WithOrigins(builder.Configuration["ClientUrl"])  // Modify as per your frontend origin
+        policy.WithOrigins(
+            builder.Configuration["ClientUrl"],
+            builder.Configuration["ClientUrlWWW"]
+            )
               .AllowAnyHeader()
               .AllowCredentials()
               .AllowAnyMethod();
@@ -94,5 +102,6 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapGet("/health", () => Results.Ok("Healthy"));
 
 app.Run();

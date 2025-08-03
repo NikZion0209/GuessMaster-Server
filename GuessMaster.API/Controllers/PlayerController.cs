@@ -23,6 +23,7 @@ namespace GuessMaster.API.Controllers
             try
             {
                 var savedUser = _serviceManager.PlayerService.AddPlayer(user);
+                Console.WriteLine($"User {savedUser.Username} with ID {savedUser.UserId} saved successfully.");
 
                 // Serialize minimal user info (e.g., UserId and Username)
                 var userInfo = new { savedUser.UserId, savedUser.Username, savedUser.AvatarUrl };
