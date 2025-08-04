@@ -5,8 +5,8 @@ on:
     branches: [ master ]
 
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: self-hosted
 
     steps:
     - name: Checkout code
@@ -19,23 +19,13 @@ jobs:
 
     - name: Publish .NET app
       run: dotnet publish -c Release -o publish
+        
+  deploy:
+    runs-on: self-hosted
 
-    - name: Copy files to EC2
-      uses: appleboy/scp-action@v0.1.7
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.EC2_KEY }}
-        source: "publish/*"
-        target: ${{ secrets.APP_DIR }}
-
-    - name: Restart app on EC2
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.EC2_KEY }}
-        script: |
-            sudo systemctl restart myapp
-            sudo systemctl status myapp --no-pager
+    steps:
+    - name: Move to app dir
+      run: |
+          cp -r publish/* /home/ec2-user/Guess-Master-ec2/
+          sudo systemctl restart myapp
 
