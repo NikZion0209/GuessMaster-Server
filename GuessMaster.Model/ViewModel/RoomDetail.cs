@@ -1,24 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace GuessMaster.Model.ViewModel;
 
-namespace GuessMaster.Model.ViewModel
+public class RegisterUserDto
 {
-    public class RoomDetail
-    {
-        public int RoomId { get; set; }
-        public bool IsFull { get; set; }
-        public int PlayerCount { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public List<RoomUser> Users { get; set; } = new List<RoomUser>();
-    }
+    public required string Username { get; set; }
+    public int UserId { get; set; }
+    public required string AvatarUrl { get; set; }
+}
 
-    public class RoomUser
-    {
-        public int UserId { get; set; }
-        public string Username { get; set; }
-        public bool IsGuest { get; set; }
-    }
+public class SessionUserDto
+{
+    public required string Username { get; set; }
+    public required string AvatarUrl { get; set; }
+    public required int Score { get; set; }
 }

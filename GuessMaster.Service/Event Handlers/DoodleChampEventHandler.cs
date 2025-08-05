@@ -1,6 +1,7 @@
 ﻿using GuessMaster.Data.Models;
 using GuessMaster.Model.Constants;
 using GuessMaster.Model.Models;
+using GuessMaster.Model.ViewModel;
 using GuessMaster.Repository;
 using GuessMaster.Repository.Interface;
 using GuessMaster.Service.Interface;
@@ -88,7 +89,7 @@ namespace GuessMaster.Service.Event_Handlers
             _doodleChampRepository.UpdateUserConnectionId(sessionId, userId, connectionId);
             _doodleChampRepository.GetSessionUsers(sessionId, out List<ConnectedUser> users);
 
-            var formattedUsers = users.Select(user => new ConnectedUser
+            var formattedUsers = users.Select(user => new SessionUserDto
             {
                 Username = user.Username,
                 AvatarUrl = user.AvatarUrl,
@@ -115,7 +116,7 @@ namespace GuessMaster.Service.Event_Handlers
             }
         }
 
-        private void OnUpdatePlayerLeaderboard(int sessionId, List<ConnectedUser> users)
+        private void OnUpdatePlayerLeaderboard(int sessionId, List<SessionUserDto> users)
         {
             Console.WriteLine($"Notifiying users in session {sessionId} for UpdatePlayerLeaderboard event handler");
             _hubContext.Clients.Group(sessionId.ToString())

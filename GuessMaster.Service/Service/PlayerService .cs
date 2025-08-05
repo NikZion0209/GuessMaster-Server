@@ -1,7 +1,9 @@
 ﻿using GuessMaster.Data.Models;
+using GuessMaster.Model.ViewModel;
 using GuessMaster.Repository;
 using GuessMaster.Service.Interface;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,23 +16,38 @@ namespace GuessMaster.Service.Service
     {
         private readonly IRepositoryManager _repositoryManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IPasswordHasher _passwordHasher;
 
-        public PlayerService(IRepositoryManager repositoryManager, IHttpContextAccessor httpContextAccessor)
+        public PlayerService(IRepositoryManager repositoryManager, IHttpContextAccessor httpContextAccessor, IPasswordHasher passwordHasher)
         {
             _repositoryManager = repositoryManager;
-            _httpContextAccessor = httpContextAccessor; 
+            _httpContextAccessor = httpContextAccessor;
+            _passwordHasher = passwordHasher;
         }
 
-        public User AddPlayer(User user)
+        public RegisterUserDto AddOrValidateUser(User user, out RegisterUserDto registerUserDto)
         {
-            try
+            User? existingUser = _repositoryManager.PlayerRepository.GetUserByUsername(user.Username);
+            if (existingUser == null)
             {
-                return _repositoryManager.PlayerRepository.AddPlayer(user);
+                // Username does not exist, hash and add
+                user.Password = _passwordHasher.HashPassword(user.Password);
+                existingUser = _repositoryManager.PlayerRepository.AddPlayer(user);
             }
-            catch (Exception)
+            else
             {
-                throw;
+                if (!_passwordHasher.VerifyPassword(user.Password, existingUser.Password))
+                {
+                    throw new UnauthorizedAccessException("Password is incorrect.");
+                }
             }
+
+            return registerUserDto = new RegisterUserDto
+            {
+                UserId = existingUser.UserId,
+                Username = existingUser.Username,
+                AvatarUrl = existingUser.AvatarUrl
+            };
         }
 
         public IEnumerable<User> GetAllPlayers()
@@ -41,7 +58,6 @@ namespace GuessMaster.Service.Service
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
@@ -54,10 +70,8 @@ namespace GuessMaster.Service.Service
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
-
     }
 }

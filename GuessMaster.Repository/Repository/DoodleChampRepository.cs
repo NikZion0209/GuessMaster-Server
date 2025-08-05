@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GuessMaster.Repository.Interface;
+using GuessMaster.Model.ViewModel;
 
 namespace GuessMaster.Repository.Repository
 {
@@ -14,7 +15,7 @@ namespace GuessMaster.Repository.Repository
     {
         private readonly ConcurrentDictionary<int, DoodleChampSession> Sessions = new();
 
-        public static event Action<int, List<ConnectedUser>>? UpdatePlayerLeaderboard;
+        public static event Action<int, List<SessionUserDto>>? UpdatePlayerLeaderboard;
 
         public bool TryGetSession(int sessionId, out DoodleChampSession? session) => Sessions.TryGetValue(sessionId, out session);
 
@@ -191,11 +192,12 @@ namespace GuessMaster.Repository.Repository
 
         public void AddUserToSession(int sessionId, User user)
         {
-            ConnectedUser connectedUser = new ConnectedUser
+            ConnectedUser connectedUser = new()
             {
                 UserId = user.UserId,
                 Username = user.Username,
-                AvatarUrl = user.AvatarUrl
+                AvatarUrl = user.AvatarUrl,
+                Password = user.Password
             };
 
             if (Sessions.TryGetValue(sessionId, out var session))
@@ -469,7 +471,15 @@ namespace GuessMaster.Repository.Repository
                 {
                     user.Score += score; // Update the user's score
                     Console.WriteLine($"User {user.Username}'s score updated to {score} in session {sessionId}.");
-                    UpdatePlayerLeaderboard?.Invoke(sessionId, session.ConnectedUsers);
+
+                    var formattedUsers = session.ConnectedUsers.Select(user => new SessionUserDto
+                    {
+                        Username = user.Username,
+                        AvatarUrl = user.AvatarUrl,
+                        Score = user.Score,
+                    }).ToList();
+
+                    UpdatePlayerLeaderboard?.Invoke(sessionId, formattedUsers);
                 }
                 else
                 {
@@ -495,7 +505,15 @@ namespace GuessMaster.Repository.Repository
                     user.Score += score; // Increment each user's score by the specified amount
                 }
                 Console.WriteLine($"Scores incremented by {score} for all users in session {sessionId}.");
-                UpdatePlayerLeaderboard?.Invoke(sessionId, session.ConnectedUsers);
+
+                var formattedUsers = session.ConnectedUsers.Select(user => new SessionUserDto
+                {
+                    Username = user.Username,
+                    AvatarUrl = user.AvatarUrl,
+                    Score = user.Score,
+                }).ToList();
+
+                UpdatePlayerLeaderboard?.Invoke(sessionId, formattedUsers);
             }
             else
             {

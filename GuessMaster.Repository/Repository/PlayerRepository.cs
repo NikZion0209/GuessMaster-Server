@@ -70,6 +70,11 @@ namespace GuessMaster.Repository.Repository
             }
         }
 
+        public User? GetUserByUsername(string username)
+        {
+            return _context.Users.FirstOrDefault(u => u.Username == username);
+        }
+
         public void UpdateUser(User user)
         {
             try

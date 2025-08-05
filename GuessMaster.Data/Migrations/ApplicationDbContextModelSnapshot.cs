@@ -39,6 +39,11 @@ namespace GuessMaster.Data.Migrations
                         .HasColumnType("datetime")
                         .HasDefaultValueSql("(GETDATE())");
 
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("datetime")

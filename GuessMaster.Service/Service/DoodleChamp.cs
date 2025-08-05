@@ -1,6 +1,7 @@
 ﻿using GuessMaster.Data.Models;
 using GuessMaster.Model.Constants;
 using GuessMaster.Model.Models;
+using GuessMaster.Model.ViewModel;
 using GuessMaster.Repository;
 using GuessMaster.Repository.Interface;
 using GuessMaster.Service.Interface;
@@ -20,7 +21,7 @@ namespace GuessMaster.Service.Service
         public static event Action<int>? GameStarted;
         public static event Action<int>? GameRestart;
         public static event Action<int>? GameEndedEarly;
-        public static event Action<int, List<ConnectedUser>>? UpdatePlayerLeaderboard;
+        public static event Action<int, List<SessionUserDto>>? UpdatePlayerLeaderboard;
         public static event Action<int, string, string>? NotifyUserTurn;
         public static event Action<string>? NotifyEndUserTurn;
         public static event Action<int, string, List<string>>? SendGeneratedPrompts;
@@ -212,7 +213,7 @@ namespace GuessMaster.Service.Service
             _doodleChampRepository.GetSessionUsers(sessionId, out List<ConnectedUser> currentUsers);
             _doodleChampRepository.GetSessionState(sessionId, out int gameState);
 
-            var formattedUsers = currentUsers.Select(user => new ConnectedUser
+            var formattedUsers = currentUsers.Select(user => new SessionUserDto
             {
                 Username = user.Username,
                 AvatarUrl = user.AvatarUrl,

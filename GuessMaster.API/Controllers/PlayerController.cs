@@ -22,7 +22,7 @@ namespace GuessMaster.API.Controllers
             Result result = new Result();
             try
             {
-                var savedUser = _serviceManager.PlayerService.AddPlayer(user);
+                _serviceManager.PlayerService.AddOrValidateUser(user, out var savedUser);
                 Console.WriteLine($"User {savedUser.Username} with ID {savedUser.UserId} saved successfully.");
 
                 // Serialize minimal user info (e.g., UserId and Username)
@@ -46,10 +46,16 @@ namespace GuessMaster.API.Controllers
                 result.Header.ResultDescription = "SUCCESS";
                 result.Data = savedUser;
             }
+            catch (UnauthorizedAccessException ex)
+            {
+                result.Header.ResultCode = "401";
+                result.Header.ResultDescription = "Unauthorized access. Please check your credentials.";
+                result.Data = ex.Message;
+            }
             catch (Exception ex)
             {
                 result.Header.ResultCode = "500";
-                result.Header.ResultDescription = "INTERNAL SERVER ERROR";
+                result.Header.ResultDescription = "Something went wrong while logging in. Please try again.";
                 result.Data = ex.Message;
             }
             return await Task.FromResult(result);

@@ -14,5 +14,6 @@ namespace GuessMaster.Service
         IGameSessions GameService { get; }
         IGameTimer GameTimer { get; }
         IDoodleChamp DoodleChamp { get; }
+        IPasswordHasher PasswordHasher { get; }
     }
 }

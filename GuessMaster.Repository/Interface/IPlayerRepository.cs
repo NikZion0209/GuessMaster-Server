@@ -14,5 +14,6 @@ namespace GuessMaster.Repository.Interface
         IEnumerable<User> GetAllPlayers();
         User GetUserById(int userId);
         void UpdateUser(User user);
+        User? GetUserByUsername(string username);
     }
 }
