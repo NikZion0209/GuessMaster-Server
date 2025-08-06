@@ -11,9 +11,6 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-    
-    - name: Install dotnet-ef tool
-      run: dotnet tool install --global dotnet-ef
 
     - name: Apply EF Core migrations
       run: |
