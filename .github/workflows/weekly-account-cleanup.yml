@@ -1,22 +1,14 @@
-name: Weekly Account Cleanup
+name: Weekly SQL Cleanup on Self-Hosted Runner
 
 on:
-  schedule:
-    - cron: '0 3 * * 1'  # Runs every Monday at 03:00 UTC
+  push:
+    branches: [ master ]  # every Monday at 03:00 UTC
 
 jobs:
   cleanup:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted   # This tells GitHub Actions to use your EC2 runner
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Install sqlcmd
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y mssql-tools unixodbc-dev
-
       - name: Run cleanup query
         env:
           SQL_SERVER: ${{ secrets.SQL_SERVER }}
