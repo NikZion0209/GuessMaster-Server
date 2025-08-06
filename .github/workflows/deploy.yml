@@ -16,7 +16,7 @@ jobs:
       run: |
         export PATH="$PATH:$HOME/.dotnet/tools"
         cd GuessMaster.Data
-        dotnet ef database update --startup-project ../GuessMaster.API --connection "Server=${{ secrets.SQL_SERVER }};Database=${{ secrets.SQL_DB }};User Id=${{ secrets.SQL_USER }};Password=${{ secrets.SQL_PASS }};"
+        dotnet ef database update --startup-project ../GuessMaster.API --connection "Server=${{ secrets.SQL_SERVER }};Database=${{ secrets.SQL_DB }};User Id=${{ secrets.SQL_USER }};Password=${{ secrets.SQL_PASS }};TrustServerCertificate=True;"
 
     - name: Publish .NET app
       run: dotnet publish -c Release -o publish
