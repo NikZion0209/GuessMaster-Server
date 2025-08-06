@@ -1,0 +1,27 @@
+name: Weekly Account Cleanup
+
+on:
+  schedule:
+    - cron: '0 3 * * 1'  # Runs every Monday at 03:00 UTC
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install sqlcmd
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mssql-tools unixodbc-dev
+
+      - name: Run cleanup query
+        env:
+          SQL_SERVER: ${{ secrets.SQL_SERVER }}
+          SQL_USER: ${{ secrets.SQL_USER }}
+          SQL_PASS: ${{ secrets.SQL_PASS }}
+          SQL_DB: gm-prod
+        run: |
+          /opt/mssql-tools/bin/sqlcmd -S $SQL_SERVER -U $SQL_USER -P $SQL_PASS -d $SQL_DB -Q "DELETE FROM Users WHERE UpdatedAt < DATEADD(day, -7, GETDATE());"
