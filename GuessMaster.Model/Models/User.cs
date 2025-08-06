@@ -11,7 +11,5 @@ public partial class User
     public required string Password { get; set; }
     public required string AvatarUrl { get; set; }
     public DateTime? CreatedAt { get; set; }
-
-    [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
     public DateTime? UpdatedAt { get; set; }
 }

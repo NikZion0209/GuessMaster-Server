@@ -55,7 +55,6 @@ public partial class ApplicationDbContext : DbContext
 
             entity.Property(e => e.UpdatedAt)
                 .HasDefaultValueSql("(GETDATE())")
-                .ValueGeneratedOnAddOrUpdate()
                 .HasColumnType("datetime");
 
             entity.Property(e => e.Username).HasMaxLength(100);

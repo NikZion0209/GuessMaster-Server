@@ -58,11 +58,20 @@ namespace GuessMaster.Repository.Repository
             }
         }
 
+        private void UpdateUserTimestamps(User user)
+        {
+            user.UpdatedAt = DateTime.Now;
+            _context.Users.Update(user);
+            _context.SaveChanges();
+        }
+
         public User GetUserById(int userId)
         {
             try
             {
-                return _context.Users.Find(userId) ?? throw new Exception("User not found.");
+                var user = _context.Users.Find(userId) ?? throw new Exception("User not found.");
+                UpdateUserTimestamps(user);
+                return user;
             }
             catch (Exception ex)
             {
@@ -72,7 +81,12 @@ namespace GuessMaster.Repository.Repository
 
         public User? GetUserByUsername(string username)
         {
-            return _context.Users.FirstOrDefault(u => u.Username == username);
+            var user = _context.Users.FirstOrDefault(u => u.Username == username);
+            if (user != null)
+            {
+                UpdateUserTimestamps(user);
+            }
+            return user;
         }
 
         public void UpdateUser(User user)
