@@ -15,7 +15,8 @@ jobs:
     - name: Apply EF Core migrations
       run: |
         export PATH="$PATH:$HOME/.dotnet/tools"
-        dotnet ef database update
+        cd GuessMaster.Data
+        dotnet ef database update --startup-project ../GuessMaster.API
 
     - name: Publish .NET app
       run: dotnet publish -c Release -o publish
