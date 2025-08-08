@@ -196,7 +196,7 @@ namespace GuessMaster.Repository.Repository
             {
                 UserId = user.UserId,
                 Username = user.Username,
-                AvatarUrl = user.AvatarUrl,
+                AvatarId = user.AvatarId,
                 Password = user.Password
             };
 
@@ -475,7 +475,7 @@ namespace GuessMaster.Repository.Repository
                     var formattedUsers = session.ConnectedUsers.Select(user => new SessionUserDto
                     {
                         Username = user.Username,
-                        AvatarUrl = user.AvatarUrl,
+                        AvatarId = user.AvatarId,
                         Score = user.Score,
                     }).ToList();
 
@@ -509,7 +509,7 @@ namespace GuessMaster.Repository.Repository
                 var formattedUsers = session.ConnectedUsers.Select(user => new SessionUserDto
                 {
                     Username = user.Username,
-                    AvatarUrl = user.AvatarUrl,
+                    AvatarId = user.AvatarId,
                     Score = user.Score,
                 }).ToList();
 

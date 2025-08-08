@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GuessMaster.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250805190251_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250807180021_ChangeAvatarUrlToAvatarId")]
+    partial class ChangeAvatarUrlToAvatarId
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -48,7 +48,7 @@ namespace GuessMaster.Data.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .ValueGeneratedOnAddOrUpdate()
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
                         .HasDefaultValueSql("(GETDATE())");
 

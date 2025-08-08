@@ -364,3 +364,4 @@ FodyWeavers.xsd
 
 Guess-Master-Key.pem
 GuessMaster.API/Controllers/ResetDatabaseController.cs
+GuessMaster.API/Certs

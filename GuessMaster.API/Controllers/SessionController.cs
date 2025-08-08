@@ -1,21 +1,28 @@
 ﻿using GuessMaster.Data.Models;
 using GuessMaster.Model.ViewModel;
 using GuessMaster.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 
 namespace GuessMaster.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class SessionController : ControllerBase
     {
         private readonly IServiceManager _serviceManager;
-        public SessionController(IServiceManager serviceManager)
+        private readonly IConfiguration _configuration;
+        public SessionController(IServiceManager serviceManager, IConfiguration configuration)
         {
             _serviceManager = serviceManager;
+            _configuration = configuration;
         }
 
         [Route("getAvailableSessions")]
@@ -40,45 +47,44 @@ namespace GuessMaster.API.Controllers
 
         [Route("addUserToSession")]
         [HttpPost]
-        public async Task<Result> AddUserToSession([FromQuery] int gameType, [FromQuery] int sessionId, int userId)
+        public async Task<Result> AddUserToSession([FromQuery] int gameType, [FromQuery] int sessionId)
         {
             Result result = new Result();
             try
             {
-                Console.WriteLine($"Attempting to add user with ID {userId} to session with ID {sessionId}.");
+                var userId = int.Parse(User.FindFirstValue("userId"));
+                var username = User.FindFirstValue("username");
+                var avatarId = User.FindFirstValue("avatarId");
+
+                Console.WriteLine($"Attempting to add user with ID {username} to session with ID {sessionId}.");
                 _serviceManager.GameService.AddUserToSession(gameType, sessionId, userId);
 
-                // Read existing UserInfo cookie
-                var userInfoJson = Request.Cookies["UserInfo"];
-                dynamic userInfo;
-                if (!string.IsNullOrEmpty(userInfoJson))
-                {
-                    userInfo = JsonConvert.DeserializeObject<dynamic>(userInfoJson);
-                }
-                else
-                {
-                    userInfo = new System.Dynamic.ExpandoObject();
-                }
+                var jwtKey = _configuration["Jwt:Key"];
+                var jwtIssuer = _configuration["Jwt:Issuer"];
+                var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+                var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-                // Set or update SessionId
-                userInfo.SessionId = sessionId;
+                var claims = new[]
+                {
+                    new Claim("userId", userId.ToString()),
+                    new Claim("username", username),
+                    new Claim("avatarId", avatarId),
+                    new Claim("sessionId", sessionId.ToString())
+                };
 
-                // Write back the updated cookie
-                var updatedUserInfoJson = JsonConvert.SerializeObject(userInfo);
-                Response.Cookies.Append(
-                    "UserInfo",
-                    updatedUserInfoJson,
-                    new CookieOptions
-                    {
-                        HttpOnly = true,
-                        Secure = true, // Set to true in production
-                        SameSite = SameSiteMode.Strict,
-                        Expires = DateTimeOffset.UtcNow.AddDays(1)
-                    }
+                var token = new JwtSecurityToken(
+                    issuer: jwtIssuer,
+                    audience: null,
+                    claims: claims,
+                    expires: DateTime.UtcNow.AddDays(1),
+                    signingCredentials: credentials
                 );
+
+                var jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
 
                 result.Header.ResultCode = "200";
                 result.Header.ResultDescription = "SUCCESS";
+                result.Data = new { token = jwtToken };
             }
             catch (Exception ex)
             {

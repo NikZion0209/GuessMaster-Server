@@ -30,7 +30,7 @@ namespace GuessMaster.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
 
-                    b.Property<string>("AvatarUrl")
+                    b.Property<string>("AvatarId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

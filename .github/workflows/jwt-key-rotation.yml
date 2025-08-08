@@ -1,0 +1,31 @@
+name: Rotate JWT Key Daily
+
+on:
+  schedule:
+    # Runs at 4:00 AM UTC every day
+    - cron: '0 4 * * *'
+
+jobs:
+  rotate_jwt_key:
+    runs-on: self-hosted
+
+    steps:
+    - name: Generate new JWT key and update AWS Secrets Manager
+      run: |
+        SECRET_NAME="prod/jwt/signingkey"
+        JWT_KEY=$(openssl rand -base64 32)
+        echo "Generated new JWT key."
+
+        if aws secretsmanager describe-secret --secret-id "$SECRET_NAME" >/dev/null 2>&1; then
+          echo "Secret exists, updating..."
+          aws secretsmanager update-secret --secret-id "$SECRET_NAME" --secret-string "{\"JWTKey\":\"$JWT_KEY\"}"
+        else
+          echo "Secret does not exist, creating..."
+          aws secretsmanager create-secret --name "$SECRET_NAME" --secret-string "{\"JWTKey\":\"$JWT_KEY\"}"
+        fi
+      env:
+        AWS_REGION: ${{ secrets.AWS_REGION }}
+
+    - name: Restart application to apply new JWT key
+      run: |
+        sudo systemctl restart myapp

@@ -92,7 +92,7 @@ namespace GuessMaster.Service.Event_Handlers
             var formattedUsers = users.Select(user => new SessionUserDto
             {
                 Username = user.Username,
-                AvatarUrl = user.AvatarUrl,
+                AvatarId = user.AvatarId,
                 Score = user.Score,
             }).ToList();
 

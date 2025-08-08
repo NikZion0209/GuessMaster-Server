@@ -46,7 +46,7 @@ namespace GuessMaster.Service.Service
             {
                 UserId = existingUser.UserId,
                 Username = existingUser.Username,
-                AvatarUrl = existingUser.AvatarUrl
+                AvatarId = existingUser.AvatarId
             };
         }
 

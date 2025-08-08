@@ -216,7 +216,7 @@ namespace GuessMaster.Service.Service
             var formattedUsers = currentUsers.Select(user => new SessionUserDto
             {
                 Username = user.Username,
-                AvatarUrl = user.AvatarUrl,
+                AvatarId = user.AvatarId,
                 Score = user.Score,
             }).ToList();
             UpdatePlayerLeaderboard?.Invoke(sessionId, formattedUsers);
