@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace GuessMaster.Service
 {
@@ -20,18 +21,21 @@ namespace GuessMaster.Service
         private readonly Lazy<IGameTimer> _lazyGameTimer;
         private readonly Lazy<IDoodleChamp> _lazyDoodleChamp;
         private readonly Lazy<IPasswordHasher> _lazyPasswordHasher;
+        private readonly Lazy<IJWTHelper> _lazyJwtHelper;
 
         public ServiceManager(
             IRepositoryManager _repositoryManager, 
             IHttpContextAccessor _httpContextAccessor, 
             IDoodleChampRepository _doodleChampRepository, 
-            IPasswordHasher _passwordHasher
+            IPasswordHasher _passwordHasher,
+            IConfiguration _configuration
         ) {
             _lazyPlayerService = new Lazy<IPlayerService>(() => new PlayerService(_repositoryManager, _httpContextAccessor, _passwordHasher));
             _lazyGameTimer = new Lazy<IGameTimer>(() => new GameTimer());
             _lazyDoodleChamp = new Lazy<IDoodleChamp>(() => new DoodleChamp(GameTimer , _doodleChampRepository));
             _lazyGameService = new Lazy<IGameSessions>(() => new GameSessions(_repositoryManager, _doodleChampRepository));
             _lazyPasswordHasher = new Lazy<IPasswordHasher>(() => new PasswordHasher());
+            _lazyJwtHelper = new Lazy<IJWTHelper>(() => new JWTHelper(_configuration));
         }
 
         public IPlayerService PlayerService => _lazyPlayerService.Value;
@@ -39,5 +43,6 @@ namespace GuessMaster.Service
         public IGameTimer GameTimer => _lazyGameTimer.Value;
         public IDoodleChamp DoodleChamp => _lazyDoodleChamp.Value;
         public IPasswordHasher PasswordHasher => _lazyPasswordHasher.Value;
+        public IJWTHelper JWTHelper => _lazyJwtHelper.Value;
     }
 }

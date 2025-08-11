@@ -1,6 +1,7 @@
 ﻿using GuessMaster.Data.Models;
 using GuessMaster.Model.ViewModel;
 using GuessMaster.Service;
+using GuessMaster.Service.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -19,10 +20,12 @@ namespace GuessMaster.API.Controllers
     {
         private readonly IServiceManager _serviceManager;
         private readonly IConfiguration _configuration;
-        public SessionController(IServiceManager serviceManager, IConfiguration configuration)
+        private readonly IJWTHelper _jwtHelper;
+        public SessionController(IServiceManager serviceManager, IConfiguration configuration, IJWTHelper jwtHelper)
         {
             _serviceManager = serviceManager;
             _configuration = configuration;
+            _jwtHelper = jwtHelper;
         }
 
         [Route("getAvailableSessions")]
@@ -59,29 +62,66 @@ namespace GuessMaster.API.Controllers
                 Console.WriteLine($"Attempting to add user with ID {username} to session with ID {sessionId}.");
                 _serviceManager.GameService.AddUserToSession(gameType, sessionId, userId);
 
-                var jwtKey = _configuration["Jwt:Key"];
-                var jwtIssuer = _configuration["Jwt:Issuer"];
-                var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
-                var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+                var jwtToken = _jwtHelper.GenerateJwt(userId, username, avatarId, sessionId);
 
-                var claims = new[]
+                result.Header.ResultCode = "200";
+                result.Header.ResultDescription = "SUCCESS";
+                result.Data = new { token = jwtToken };
+            }
+            catch (Exception ex)
+            {
+                result.Header.ResultCode = "500";
+                result.Header.ResultDescription = "INTERNAL SERVER ERROR";
+                result.Data = ex.Message;
+            }
+            return await Task.FromResult(result);
+        }
+
+        [Route("addUserToNextAvailableSession")]
+        [HttpPost]
+        public async Task<Result> AddUserToNextAvailableSession([FromQuery] int gameType)
+        {
+            Result result = new Result();
+            try
+            {
+                var userId = int.Parse(User.FindFirstValue("userId"));
+                var username = User.FindFirstValue("username");
+                var avatarId = User.FindFirstValue("avatarId");
+                Console.WriteLine($"Attempting to add user with ID {username} to the next available session for game type {gameType}.");
+                _serviceManager.GameService.AddUserToNextAvailableSession(gameType, userId, out int sessionId);
+                if (sessionId <= 0)
                 {
-                    new Claim("userId", userId.ToString()),
-                    new Claim("username", username),
-                    new Claim("avatarId", avatarId),
-                    new Claim("sessionId", sessionId.ToString())
-                };
+                    result.Header.ResultCode = "404";
+                    result.Header.ResultDescription = "NO AVAILABLE SESSIONS";
+                    result.Data = null;
+                    return await Task.FromResult(result);
+                }
 
-                var token = new JwtSecurityToken(
-                    issuer: jwtIssuer,
-                    audience: null,
-                    claims: claims,
-                    expires: DateTime.UtcNow.AddDays(1),
-                    signingCredentials: credentials
-                );
+                var jwtToken = _jwtHelper.GenerateJwt(userId, username, avatarId, sessionId);
+                result.Header.ResultCode = "200";
+                result.Header.ResultDescription = "SUCCESS";
+                result.Data = new { token = jwtToken };
+            }
+            catch (Exception ex)
+            {
+                result.Header.ResultCode = "500";
+                result.Header.ResultDescription = "INTERNAL SERVER ERROR";
+                result.Data = ex.Message;
+            }
+            return await Task.FromResult(result);
+        }
 
-                var jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
-
+        [Route("removeSessionFromToken")]
+        [HttpPost]
+        public async Task<Result> RemoveSessionFromToken()
+        {
+            Result result = new Result();
+            try
+            {
+                var userId = int.Parse(User.FindFirstValue("userId"));
+                var username = User.FindFirstValue("username");
+                var avatarId = User.FindFirstValue("avatarId");
+                var jwtToken = _jwtHelper.GenerateJwt(userId, username, avatarId);
                 result.Header.ResultCode = "200";
                 result.Header.ResultDescription = "SUCCESS";
                 result.Data = new { token = jwtToken };

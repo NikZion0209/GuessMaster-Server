@@ -11,7 +11,8 @@ namespace GuessMaster.Service.Interface
 {
     public interface IGameSessions
     {
-        public List<GameSessionDTO> GetAvailableGameSessions(int gameType);
+        List<GameSessionDTO> GetAvailableGameSessions(int gameType);
         void AddUserToSession(int gameType, int sessionId, int userId);
+        int AddUserToNextAvailableSession(int gameType, int userId, out int sessionId);
     }
 }

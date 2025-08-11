@@ -7,6 +7,7 @@ using GuessMaster.Service.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -75,6 +76,30 @@ namespace GuessMaster.Service.Service
                     default:
                         throw new ArgumentException("Invalid game type specified.");
                 }
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (not implemented here)
+                Console.WriteLine($"Error adding user to session: {ex.Message}");
+                throw new Exception("An error occurred while adding user to session.", ex);
+            }
+        }
+
+        public int AddUserToNextAvailableSession(int gameType, int userId, out int sessionId)
+        {
+            try
+            {
+                User user = _repositoryManager.PlayerRepository.GetUserById(userId);
+                switch (gameType)
+                {
+                    case Gamemodes.DoodleChamp:
+                        _doodleChampRepository.AddUserToNextAvailableSession(user, out int doodleChampSessionId);
+                        sessionId = doodleChampSessionId;
+                        break;
+                    default:
+                        throw new ArgumentException("Invalid game type specified.");
+                }
+                return sessionId;
             }
             catch (Exception ex)
             {

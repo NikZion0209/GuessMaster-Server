@@ -47,5 +47,6 @@ namespace GuessMaster.Repository.Interface
         public void IncrementSessionScores(int sessionId, int score, List<string>? exceptionUsers = null);
         public void ResetGameRound(int sessionId);
         public void ResetGameSession(int sessionId);
+        public int AddUserToNextAvailableSession(User user, out int sessionId);
     }
 }

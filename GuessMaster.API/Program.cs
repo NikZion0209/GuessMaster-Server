@@ -66,9 +66,11 @@ builder.Services.AddSingleton<IDoodleChamp, DoodleChamp>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddSingleton<IGameTimer, GameTimer>();
 builder.Services.AddSingleton<IEventHandler, DoodleChampEventHandler>();
+builder.Services.AddSingleton<IJWTHelper, JWTHelper>();
 
 builder.Services.AddSignalR();
 
+builder.Services.AddMemoryCache();
 
 builder.Services.AddHostedService<EventHostedService>();
 

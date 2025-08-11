@@ -190,6 +190,18 @@ namespace GuessMaster.Repository.Repository
                 .ToList();
         }
 
+        public int AddUserToNextAvailableSession(User user, out int sessionId)
+        {
+            GetAvailableSessions(out var availableSessions);
+            if (availableSessions.Count == 0)
+            {
+                CreateNewSession(out availableSessions);
+            }
+            sessionId = availableSessions[0].SessionId;
+            AddUserToSession(sessionId, user);
+            return sessionId;
+        }
+
         public void AddUserToSession(int sessionId, User user)
         {
             ConnectedUser connectedUser = new()
