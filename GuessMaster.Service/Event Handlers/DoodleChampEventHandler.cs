@@ -176,6 +176,8 @@ namespace GuessMaster.Service.Event_Handlers
             _hubContext.Clients.Client(connectionId)
                 .SendAsync(ChatEventNames.UserTurn, true);
 
+            ToggleSelectionPhase(sessionId, connectionId, true);
+
             _hubContext.Clients.Group(sessionId.ToString())
                 .SendAsync(ChatEventNames.RoomMessage, $"{username} is the drawer");
         }
@@ -184,6 +186,12 @@ namespace GuessMaster.Service.Event_Handlers
         {
             _hubContext.Clients.Client(connectionId)
                 .SendAsync(ChatEventNames.UserTurn, false);
+        }
+
+        private void ToggleSelectionPhase(int sessionId, string connectionId, bool isSelectionPhase)
+        {
+            _hubContext.Clients.GroupExcept(sessionId.ToString(), connectionId)
+                .SendAsync(ChatEventNames.SelectionPhase, isSelectionPhase);
         }
 
         private void OnLookoutCondition(int sessionId, string lookoutCondition)
@@ -206,6 +214,8 @@ namespace GuessMaster.Service.Event_Handlers
 
         private void OnEndPromptSelection(int sessionId, string connectionId)
         {
+            ToggleSelectionPhase(sessionId, connectionId, false);
+
             _hubContext.Clients.Client(connectionId)
                 .SendAsync(ChatEventNames.PromptSelectionEnd);
         }
@@ -251,10 +261,10 @@ namespace GuessMaster.Service.Event_Handlers
                 .SendAsync(ChatEventNames.ReleaseHint, hintPosition, hintLetter);
         }
 
-        private void OnToggleRoundSummaryOverlay(int sessionId, bool isVisible)
+        private void OnToggleRoundSummaryOverlay(int sessionId, bool isVisible, string? prompt)
         {
             _hubContext.Clients.Group(sessionId.ToString())
-                .SendAsync(ChatEventNames.RoundSummaryOverlay, isVisible);
+                .SendAsync(ChatEventNames.RoundSummaryOverlay, isVisible, prompt);
         }
 
         private void OnGameEnd(int sessionId, bool end)

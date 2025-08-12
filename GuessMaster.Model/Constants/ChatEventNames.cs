@@ -32,5 +32,6 @@ namespace GuessMaster.Model.Constants
         public const string RoundSummaryOverlay = "RoundSummaryOverlay";
         public const string GameEnd = "GameEnd";
         public const string ResetChat = "ResetChat";
+        public const string SelectionPhase = "SelectionPhase";
     }
 }
