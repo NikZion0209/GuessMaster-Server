@@ -203,6 +203,15 @@ namespace GuessMaster.Service.Service
             _doodleChampRepository.ResetGameSession(sessionId);
             GameEnd?.Invoke(sessionId, false);
             GameRestart?.Invoke(sessionId);
+
+            var formattedUsers = users.Select(user => new SessionUserDto
+            {
+                Username = user.Username,
+                AvatarId = user.AvatarId,
+                Score = user.Score,
+            }).ToList();
+            UpdatePlayerLeaderboard?.Invoke(sessionId, formattedUsers);
+
             CheckLobbyStatus(sessionId);
         }
 
