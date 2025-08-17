@@ -30,7 +30,7 @@ namespace GuessMaster.Service.Service
         public static event Action<int, string, string>? NotifyUserInSession;
         public static event Action<int, bool>? ToggleSessionGuessAbility;
         public static event Action<int, int>? ReleaseHintLength;
-        public static event Action<int, bool, string?>? ToggleRoundSummaryOverlay;
+        public static event Action<int, bool, string?, bool>? ToggleRoundSummaryOverlay;
         public static event Action<int, bool>? GameEnd;
 
         public DoodleChamp(IGameTimer gameTimer, IDoodleChampRepository doodleChampRepository)
@@ -153,30 +153,28 @@ namespace GuessMaster.Service.Service
                 _doodleChampRepository.UpdateSessionState(sessionId, Model.Constants.DoodleChamp.RoundSummary);
                 NotifyEndUserTurn?.Invoke(user.ConnectionId);
 
-                if (i < users.Count - 1)
-                {
-                    ToggleRoundSummaryOverlay?.Invoke(sessionId, true, selectedPrompt);
+                bool lastRound = !(i < users.Count - 1);
+                ToggleRoundSummaryOverlay?.Invoke(sessionId, true, selectedPrompt, lastRound);
 
-                    // Round summary timer
-                    try
-                    {
-                        await _gameTimer.StartTimer(
-                            sessionId,
-                            Model.Constants.DoodleChamp.RoundSummaryTimer,
-                            Model.Constants.DoodleChamp.RoundSummaryCountdown,
-                            Gamemodes.DoodleChamp
-                        );
-                    }
-                    catch (OperationCanceledException ex)
-                    {
-                        Console.WriteLine($"Timer for session {sessionId} was canceled.");
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Unexpected error in timer for session {sessionId}: {ex}");
-                    }
-                        ToggleRoundSummaryOverlay?.Invoke(sessionId, false, null);
-                    }
+                // Round summary timer
+                try
+                {
+                    await _gameTimer.StartTimer(
+                        sessionId,
+                        Model.Constants.DoodleChamp.RoundSummaryTimer,
+                        Model.Constants.DoodleChamp.RoundSummaryCountdown,
+                        Gamemodes.DoodleChamp
+                    );
+                }
+                catch (OperationCanceledException ex)
+                {
+                    Console.WriteLine($"Timer for session {sessionId} was canceled.");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Unexpected error in timer for session {sessionId}: {ex}");
+                }
+                ToggleRoundSummaryOverlay?.Invoke(sessionId, false, null, lastRound);
             }
             EndGame(sessionId);
         }

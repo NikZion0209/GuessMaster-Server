@@ -48,5 +48,11 @@ namespace GuessMaster.Repository.Interface
         public void ResetGameRound(int sessionId);
         public void ResetGameSession(int sessionId);
         public int AddUserToNextAvailableSession(User user, out int sessionId);
+        public void ResetUsersRatings(int sessionId);
+        public void IncrementUserRating(int sessionId, string username);
+        public void GetSessionHighestRating(int sessionId, out string highestRatingUsername, out int highestRating, out string drawing);
+        public void GetSessionHighestScore(int sessionId, out int highestScore, out string highestScoreUsername);
+        public void RemoveUserDrawings(int sessionId);
+        public void SetUserFinalDrawing(int sessionId, string connectionId, string drawing);
     }
 }

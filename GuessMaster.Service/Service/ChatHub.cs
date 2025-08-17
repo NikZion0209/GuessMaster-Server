@@ -17,6 +17,8 @@ namespace GuessMaster.Service.Service
         public static event Action<int, int, string>? UserJoinedRoom;
         public static event Action<int, string>? SaveDrawingPrompt;
         public static event Action<int, string, string>? ResolveUserGuess;
+        public static event Action<int>? IncrementArtistRating;
+        public static event Action<int, string, string>? SaveFinalDrawing;
 
         public static readonly ConcurrentDictionary<int, List<string>> SessionUsers = new();
 
@@ -128,6 +130,24 @@ namespace GuessMaster.Service.Service
         public void SendGeneratedPrompt(int sessionId, string prompt)
         {
             SaveDrawingPrompt?.Invoke(sessionId, prompt);
+        }
+
+        public void SendFinalDrawing(int sessionId, string drawingData)
+        {
+            try
+            {
+                SaveFinalDrawing?.Invoke(sessionId, Context.ConnectionId, drawingData);
+                Clients.Group(sessionId.ToString()).SendAsync(ChatEventNames.ReceiveFinalDrawing, drawingData);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error sending final drawing data: {ex.Message}");
+            }
+        }
+
+        public void IncrementUserRating(int sessionId)
+        {
+            IncrementArtistRating?.Invoke(sessionId);
         }
     }
 }

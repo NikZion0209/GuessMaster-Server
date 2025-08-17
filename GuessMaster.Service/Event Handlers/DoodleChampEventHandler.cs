@@ -32,6 +32,8 @@ namespace GuessMaster.Service.Event_Handlers
             ChatHub.UserLeftRoom += OnUserLeftRoom;
             ChatHub.SaveDrawingPrompt += OnSaveDrawingPrompt;
             ChatHub.ResolveUserGuess += OnResolveUserGuess;
+            ChatHub.IncrementArtistRating += OnIncrementArtistRating;
+            ChatHub.SaveFinalDrawing += OnSaveFinalDrawing;
 
             GameTimer.TimerTick += OnTimerTick;
             GameTimer.DCLookoutConditionAction += OnLookoutCondition;
@@ -61,6 +63,8 @@ namespace GuessMaster.Service.Event_Handlers
             ChatHub.UserLeftRoom -= OnUserLeftRoom;
             ChatHub.SaveDrawingPrompt -= OnSaveDrawingPrompt;
             ChatHub.ResolveUserGuess -= OnResolveUserGuess;
+            ChatHub.IncrementArtistRating -= OnIncrementArtistRating;
+            ChatHub.SaveFinalDrawing -= OnSaveFinalDrawing;
 
             GameTimer.TimerTick -= OnTimerTick;
             GameTimer.DCLookoutConditionAction -= OnLookoutCondition;
@@ -261,16 +265,39 @@ namespace GuessMaster.Service.Event_Handlers
                 .SendAsync(ChatEventNames.ReleaseHint, hintPosition, hintLetter);
         }
 
-        private void OnToggleRoundSummaryOverlay(int sessionId, bool isVisible, string? prompt)
+        private void OnToggleRoundSummaryOverlay(int sessionId, bool isVisible, string? prompt, bool isLastRound)
         {
             _hubContext.Clients.Group(sessionId.ToString())
-                .SendAsync(ChatEventNames.RoundSummaryOverlay, isVisible, prompt);
+                .SendAsync(ChatEventNames.RoundSummaryOverlay, isVisible, prompt, isLastRound);
         }
 
         private void OnGameEnd(int sessionId, bool end)
         {
-            _hubContext.Clients.Group(sessionId.ToString())
-                .SendAsync(ChatEventNames.GameEnd, end);
+            if (end)
+            {
+                _doodleChampRepository.GetSessionHighestScore(sessionId, out int highestScore, out string highestScoringUser);
+                _doodleChampRepository.GetSessionHighestRating(sessionId, out string highestRatedUser, out int highestRating, out string drawing);
+
+                _hubContext.Clients.Group(sessionId.ToString())
+                    .SendAsync(ChatEventNames.GameEnd, end, highestScoringUser, highestScore, highestRatedUser, highestRating, drawing);
+            }
+            else
+            {
+                _hubContext.Clients.Group(sessionId.ToString())
+                   .SendAsync(ChatEventNames.GameEnd, end);
+            }
+
+        }
+
+        private void OnIncrementArtistRating(int sessionId)
+        {
+            _doodleChampRepository.GetSessionUsersTurn(sessionId, out string artistUsername);
+            _doodleChampRepository.IncrementUserRating(sessionId, artistUsername);
+        }
+
+        private void OnSaveFinalDrawing(int sessionId, string connectionId, string drawing)
+        {
+            _doodleChampRepository.SetUserFinalDrawing(sessionId, connectionId, drawing);
         }
     }
 }

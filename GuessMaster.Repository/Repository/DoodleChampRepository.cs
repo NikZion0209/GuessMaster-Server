@@ -474,6 +474,109 @@ namespace GuessMaster.Repository.Repository
             }
         }
 
+        public void ResetUsersRatings(int sessionId)
+        {
+            if (Sessions.TryGetValue(sessionId, out var session))
+            {
+                foreach (var user in session.ConnectedUsers)
+                {
+                    user.Ratings = 0;
+                }
+                Console.WriteLine($"User ratings reset for session {sessionId}.");
+            }
+            else
+            {
+                throw new KeyNotFoundException($"Session {sessionId} not found.");
+            }
+        }
+
+        public void IncrementUserRating(int sessionId, string username)
+        {
+            if (Sessions.TryGetValue(sessionId, out var session))
+            {
+                var user = session.ConnectedUsers.FirstOrDefault(u => u.Username == username);
+                if (user != null)
+                {
+                    user.Ratings++;
+                    Console.WriteLine($"User {user.Username}'s rating incremented in session {sessionId}.");
+                }
+                else
+                {
+                    throw new KeyNotFoundException($"User with username {username} not found in session {sessionId}.");
+                }
+            }
+            else
+            {
+                throw new KeyNotFoundException($"Session {sessionId} not found.");
+            }
+        }
+
+        public void GetSessionHighestRating(int sessionId, out string highestRatingUsername, out int highestRating, out string drawing)
+        {
+            if (Sessions.TryGetValue(sessionId, out var session))
+            {
+                int userHighestRating = session.ConnectedUsers.Max(u => u.Ratings);
+                highestRating = userHighestRating;
+                highestRatingUsername = session.ConnectedUsers.FirstOrDefault(u => u.Ratings == userHighestRating).Username;
+                drawing = session.ConnectedUsers.FirstOrDefault(u => u.Ratings == userHighestRating).Drawing;
+            }
+            else
+            {
+                throw new KeyNotFoundException($"Session {sessionId} not found.");
+            }
+        }
+
+        public void GetSessionHighestScore(int sessionId, out int highestScore, out string highestScoreUsername)
+        {
+            if (Sessions.TryGetValue(sessionId, out var session))
+            {
+                int userHighestScore = session.ConnectedUsers.Max(u => u.Score);
+                highestScore = userHighestScore;
+                highestScoreUsername = session.ConnectedUsers
+                    .FirstOrDefault(u => u.Score == userHighestScore).Username;
+            }
+            else
+            {
+                throw new KeyNotFoundException($"Session {sessionId} not found.");
+            }
+        }
+
+        public void SetUserFinalDrawing(int sessionId, string connectionId, string drawing)
+        {
+            if (Sessions.TryGetValue(sessionId, out var session))
+            {
+                var user = session.ConnectedUsers.FirstOrDefault(u => u.ConnectionId == connectionId);
+                if (user != null)
+                {
+                    user.Drawing = drawing;
+                    Console.WriteLine($"User {user.Username}'s final drawing set in session {sessionId}.");
+                }
+                else
+                {
+                    throw new KeyNotFoundException($"User with connection ID {connectionId} not found in session {sessionId}.");
+                }
+            }
+            else
+            {
+                throw new KeyNotFoundException($"Session {sessionId} not found.");
+            }
+        }
+
+        public void RemoveUserDrawings(int sessionId)
+        {
+            if (Sessions.TryGetValue(sessionId, out var session))
+            {
+                foreach (var user in session.ConnectedUsers)
+                {
+                    user.Drawing = string.Empty;
+                }
+            }
+            else
+            {
+                throw new KeyNotFoundException($"Session {sessionId} not found.");
+            }
+        }
+
         public void IncrementUserScore(int sessionId, string username, int score)
         {
             if (Sessions.TryGetValue(sessionId, out var session))
@@ -545,6 +648,8 @@ namespace GuessMaster.Repository.Repository
                 session.ReleasedHintPositions.Clear();
 
                 ResetUserScores(sessionId);
+                ResetUsersRatings(sessionId);
+                RemoveUserDrawings(sessionId);
                 Console.WriteLine($"Game session {sessionId} has been reset.");
             }
             else
