@@ -209,7 +209,8 @@ namespace GuessMaster.Repository.Repository
                 UserId = user.UserId,
                 Username = user.Username,
                 AvatarId = user.AvatarId,
-                Password = user.Password
+                Password = user.Password,
+                Email = user.Email
             };
 
             if (Sessions.TryGetValue(sessionId, out var session))

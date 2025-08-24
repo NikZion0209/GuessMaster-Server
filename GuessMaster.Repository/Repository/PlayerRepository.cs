@@ -42,19 +42,6 @@ namespace GuessMaster.Repository.Repository
             }
         }
 
-        public IEnumerable<User> GetAllPlayers()
-        {
-            try
-            {
-                return _context.Users.ToList();
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
         public bool RemovePlayer(User user)
         {
             try
@@ -114,6 +101,23 @@ namespace GuessMaster.Repository.Repository
             {
                 UpdateUserTimestamps(user);
                 _cache.Set($"Username_{username}", user, _cacheOptions);
+                _cache.Set($"UserId_{user.UserId}", user, _cacheOptions); // Also cache by ID
+            }
+            return user;
+        }
+
+        public User? GetUserByEmail(string email)
+        {
+            if (_cache.TryGetValue($"Email_{email}", out User cachedUser))
+            {
+                return cachedUser;
+            }
+
+            var user = _context.Users.FirstOrDefault(u => u.Email == email);
+            if (user != null)
+            {
+                UpdateUserTimestamps(user);
+                _cache.Set($"Email_{user.Email}", user, _cacheOptions);
                 _cache.Set($"UserId_{user.UserId}", user, _cacheOptions); // Also cache by ID
             }
             return user;

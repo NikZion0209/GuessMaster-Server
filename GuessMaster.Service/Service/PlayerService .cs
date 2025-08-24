@@ -25,41 +25,59 @@ namespace GuessMaster.Service.Service
             _passwordHasher = passwordHasher;
         }
 
-        public RegisterUserDto AddOrValidateUser(User user, out RegisterUserDto registerUserDto)
+        public RegisterUserDto AddUser(RegistrationPostDto user, out RegisterUserDto registerUserDto)
         {
-            User? existingUser = _repositoryManager.PlayerRepository.GetUserByUsername(user.Username);
+            User? newUser = _repositoryManager.PlayerRepository.GetUserByEmail(user.Email);
+            if (newUser != null)
+            {
+                throw new UnauthorizedAccessException("Email already has account registered.");
+            }
+
+            if (_repositoryManager.PlayerRepository.GetUserByUsername(user.Username) != null)
+            {
+                throw new UnauthorizedAccessException("Username is already taken.");
+            }
+            user.Password = _passwordHasher.HashPassword(user.Password);
+            newUser = _repositoryManager.PlayerRepository.AddPlayer(new User
+            {
+                Username = user.Username,
+                Email = user.Email,
+                Password = user.Password,
+                AvatarId = user.AvatarId
+            });
+
+            return registerUserDto = new RegisterUserDto
+            {
+                UserId = newUser.UserId,
+                Username = newUser.Username,
+                AvatarId = newUser.AvatarId,
+                PremiumTokens = newUser.PremiumToken
+            };
+        }
+
+        public RegisterUserDto ValidateUser(RegistrationPostDto user, out RegisterUserDto registerUserDto)
+        {
+            User? existingUserByEmail = _repositoryManager.PlayerRepository.GetUserByEmail(user.LoginName);
+            User? existingUserByUsername = _repositoryManager.PlayerRepository.GetUserByUsername(user.LoginName);
+
+            User? existingUser = existingUserByEmail ?? existingUserByUsername;
             if (existingUser == null)
             {
-                // Username does not exist, hash and add
-                user.Password = _passwordHasher.HashPassword(user.Password);
-                existingUser = _repositoryManager.PlayerRepository.AddPlayer(user);
+                throw new ArgumentException("No account registered to this email/username");
             }
-            else
+
+            if (!_passwordHasher.VerifyPassword(user.Password, existingUser.Password))
             {
-                if (!_passwordHasher.VerifyPassword(user.Password, existingUser.Password))
-                {
-                    throw new UnauthorizedAccessException("Password is incorrect.");
-                }
+                throw new UnauthorizedAccessException("Password is incorrect.");
             }
 
             return registerUserDto = new RegisterUserDto
             {
                 UserId = existingUser.UserId,
                 Username = existingUser.Username,
-                AvatarId = existingUser.AvatarId
+                AvatarId = existingUser.AvatarId,
+                PremiumTokens = existingUser.PremiumToken
             };
-        }
-
-        public IEnumerable<User> GetAllPlayers()
-        {
-            try
-            {
-                return _repositoryManager.PlayerRepository.GetAllPlayers();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
         }
 
         public bool RemovePlayer(User user)

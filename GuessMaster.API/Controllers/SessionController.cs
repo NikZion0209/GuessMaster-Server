@@ -58,11 +58,12 @@ namespace GuessMaster.API.Controllers
                 var userId = int.Parse(User.FindFirstValue("userId"));
                 var username = User.FindFirstValue("username");
                 var avatarId = User.FindFirstValue("avatarId");
+                var premiumTokens = int.Parse(User.FindFirstValue("premiumTokens"));
 
                 Console.WriteLine($"Attempting to add user with ID {username} to session with ID {sessionId}.");
                 _serviceManager.GameService.AddUserToSession(gameType, sessionId, userId);
 
-                var jwtToken = _jwtHelper.GenerateJwt(userId, username, avatarId, sessionId);
+                var jwtToken = _jwtHelper.GenerateJwt(userId, username, avatarId, premiumTokens, sessionId);
 
                 result.Header.ResultCode = "200";
                 result.Header.ResultDescription = "SUCCESS";
@@ -87,8 +88,11 @@ namespace GuessMaster.API.Controllers
                 var userId = int.Parse(User.FindFirstValue("userId"));
                 var username = User.FindFirstValue("username");
                 var avatarId = User.FindFirstValue("avatarId");
+                var premiumTokens = int.Parse(User.FindFirstValue("premiumTokens"));
+
                 Console.WriteLine($"Attempting to add user with ID {username} to the next available session for game type {gameType}.");
                 _serviceManager.GameService.AddUserToNextAvailableSession(gameType, userId, out int sessionId);
+
                 if (sessionId <= 0)
                 {
                     result.Header.ResultCode = "404";
@@ -97,7 +101,7 @@ namespace GuessMaster.API.Controllers
                     return await Task.FromResult(result);
                 }
 
-                var jwtToken = _jwtHelper.GenerateJwt(userId, username, avatarId, sessionId);
+                var jwtToken = _jwtHelper.GenerateJwt(userId, username, avatarId, premiumTokens, sessionId);
                 result.Header.ResultCode = "200";
                 result.Header.ResultDescription = "SUCCESS";
                 result.Data = new { token = jwtToken };
@@ -121,7 +125,9 @@ namespace GuessMaster.API.Controllers
                 var userId = int.Parse(User.FindFirstValue("userId"));
                 var username = User.FindFirstValue("username");
                 var avatarId = User.FindFirstValue("avatarId");
-                var jwtToken = _jwtHelper.GenerateJwt(userId, username, avatarId);
+                var premiumTokens = int.Parse(User.FindFirstValue("premiumTokens"));
+
+                var jwtToken = _jwtHelper.GenerateJwt(userId, username, avatarId, premiumTokens);
                 result.Header.ResultCode = "200";
                 result.Header.ResultDescription = "SUCCESS";
                 result.Data = new { token = jwtToken };

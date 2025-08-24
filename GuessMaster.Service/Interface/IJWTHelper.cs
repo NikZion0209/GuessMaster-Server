@@ -8,6 +8,6 @@ namespace GuessMaster.Service.Interface
 {
     public interface IJWTHelper
     {
-        string GenerateJwt(int userId, string username, string avatarId, int sessionId = 0);
+        string GenerateJwt(int userId, string username, string avatarId, int premiumTokens, int sessionId = 0);
     }
 }
