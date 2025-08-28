@@ -16,5 +16,6 @@ namespace GuessMaster.Service
         IDoodleChamp DoodleChamp { get; }
         IPasswordHasher PasswordHasher { get; }
         IJWTHelper JWTHelper { get; }
+        ILeaderboardService LeaderboardService { get; }
     }
 }

@@ -10,5 +10,6 @@ namespace GuessMaster.Repository
     public interface IRepositoryManager
     {
         IPlayerRepository PlayerRepository { get; }
-        }
+        ILeaderboardRepository LeaderboardRepository { get; }
+    }
 }

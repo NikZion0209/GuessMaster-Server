@@ -23,3 +23,20 @@ public class RegistrationPostDto
     public required string Password { get; set; }
     public required string AvatarId { get; set; }
 }
+
+public class SinglePlayerSessionData
+{
+    public string SessionId { get; set; } = string.Empty;
+    public int GameType { get; set; }
+    public string UserId { get; set; }
+    public string IpAddress { get; set; }
+    public string UserAgent { get; set; }
+    public DateTime IssuedAt { get; set; }
+}
+
+public class HighScores
+{
+    public int HighscoreDoodleChamp { get; set; }
+    public int HighscoreFlagWhiz { get; set; }
+    public int HighscoreWordSnap { get; set; }
+}

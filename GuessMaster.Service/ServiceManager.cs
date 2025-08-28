@@ -22,6 +22,7 @@ namespace GuessMaster.Service
         private readonly Lazy<IDoodleChamp> _lazyDoodleChamp;
         private readonly Lazy<IPasswordHasher> _lazyPasswordHasher;
         private readonly Lazy<IJWTHelper> _lazyJwtHelper;
+        private readonly Lazy<ILeaderboardService> _lazyLeaderboardService;
 
         public ServiceManager(
             IRepositoryManager _repositoryManager, 
@@ -36,6 +37,7 @@ namespace GuessMaster.Service
             _lazyGameService = new Lazy<IGameSessions>(() => new GameSessions(_repositoryManager, _doodleChampRepository));
             _lazyPasswordHasher = new Lazy<IPasswordHasher>(() => new PasswordHasher());
             _lazyJwtHelper = new Lazy<IJWTHelper>(() => new JWTHelper(_configuration));
+            _lazyLeaderboardService = new Lazy<ILeaderboardService>(() => new LeaderboardService(_repositoryManager));
         }
 
         public IPlayerService PlayerService => _lazyPlayerService.Value;
@@ -44,5 +46,6 @@ namespace GuessMaster.Service
         public IDoodleChamp DoodleChamp => _lazyDoodleChamp.Value;
         public IPasswordHasher PasswordHasher => _lazyPasswordHasher.Value;
         public IJWTHelper JWTHelper => _lazyJwtHelper.Value;
+        public ILeaderboardService LeaderboardService => _lazyLeaderboardService.Value;
     }
 }

@@ -13,5 +13,6 @@ namespace GuessMaster.Service.Interface
         RegisterUserDto AddUser(RegistrationPostDto user, out RegisterUserDto registerUserDto);
         RegisterUserDto ValidateUser(RegistrationPostDto user, out RegisterUserDto registerUserDto);
         bool RemovePlayer(User user);
+        HighScores GetHighScores(int userId);
     }
 }

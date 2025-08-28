@@ -1,4 +1,5 @@
 ﻿using GuessMaster.Data.Models;
+using GuessMaster.Model.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,5 +16,7 @@ namespace GuessMaster.Repository.Interface
         void UpdateUser(User user);
         User? GetUserByUsername(string username);
         User? GetUserByEmail(string email);
+        void SetHighscore(int userId, int gameType, int score);
+        HighScores GetAllHighscores(int userId);
     }
 }

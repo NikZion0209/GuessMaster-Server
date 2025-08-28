@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.AccessControl;
 using System.Security.Claims;
 using System.Text;
 
@@ -19,16 +20,14 @@ namespace GuessMaster.API.Controllers
     public class SessionController : ControllerBase
     {
         private readonly IServiceManager _serviceManager;
-        private readonly IConfiguration _configuration;
         private readonly IJWTHelper _jwtHelper;
-        public SessionController(IServiceManager serviceManager, IConfiguration configuration, IJWTHelper jwtHelper)
+        public SessionController(IServiceManager serviceManager, IJWTHelper jwtHelper)
         {
             _serviceManager = serviceManager;
-            _configuration = configuration;
             _jwtHelper = jwtHelper;
         }
 
-        [Route("getAvailableSessions")]
+        [Route("GetAvailableSessions")]
         [HttpGet]
         public async Task<Result> GetAvailableSessions([FromQuery] int gameType)
         {
@@ -48,7 +47,7 @@ namespace GuessMaster.API.Controllers
             return await Task.FromResult(result);
         }
 
-        [Route("addUserToSession")]
+        [Route("AddUserToSession")]
         [HttpPost]
         public async Task<Result> AddUserToSession([FromQuery] int gameType, [FromQuery] int sessionId)
         {
@@ -78,7 +77,7 @@ namespace GuessMaster.API.Controllers
             return await Task.FromResult(result);
         }
 
-        [Route("addUserToNextAvailableSession")]
+        [Route("AddUserToNextAvailableSession")]
         [HttpPost]
         public async Task<Result> AddUserToNextAvailableSession([FromQuery] int gameType)
         {
@@ -115,7 +114,7 @@ namespace GuessMaster.API.Controllers
             return await Task.FromResult(result);
         }
 
-        [Route("removeSessionFromToken")]
+        [Route("RemoveSessionFromToken")]
         [HttpPost]
         public async Task<Result> RemoveSessionFromToken()
         {
@@ -131,6 +130,118 @@ namespace GuessMaster.API.Controllers
                 result.Header.ResultCode = "200";
                 result.Header.ResultDescription = "SUCCESS";
                 result.Data = new { token = jwtToken };
+            }
+            catch (Exception ex)
+            {
+                result.Header.ResultCode = "500";
+                result.Header.ResultDescription = "INTERNAL SERVER ERROR";
+                result.Data = ex.Message;
+            }
+            return await Task.FromResult(result);
+        }
+
+        [Route("StartSinglePlayerSession")]
+        [HttpGet]
+        public async Task<Result> StartSinglePlayerSession([FromQuery] int gameType)
+        {
+            Result result = new Result();
+            try
+            {
+                var userId = User.FindFirstValue("userId");
+                var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+                var userAgent = Request.Headers["User-Agent"].ToString();
+
+                SinglePlayerSessionData sessionData = new SinglePlayerSessionData
+                {
+                    GameType = gameType,
+                    UserId = userId,
+                    IpAddress = ipAddress,
+                    UserAgent = userAgent,
+                    IssuedAt = DateTime.UtcNow
+                };
+
+                var encryptedSession = _serviceManager.GameService.GenerateSinglePlayerSession(sessionData);
+
+                HttpContext.Response.Cookies.Append(
+                    "SinglePlayerSession", // Cookie name
+                    encryptedSession,
+                    new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = true,
+                        SameSite = SameSiteMode.None,
+                        Expires = DateTime.UtcNow.AddHours(1)
+                    }
+                );
+
+                result.Header.ResultCode = "200";
+                result.Header.ResultDescription = "SUCCESS";
+            }
+            catch (Exception ex)
+            {
+                result.Header.ResultCode = "500";
+                result.Header.ResultDescription = "INTERNAL SERVER ERROR";
+                result.Data = ex.Message;
+            }
+            return await Task.FromResult(result);
+        }
+
+        [Route("EndSinglePlayerSession")]
+        [HttpPost]
+        public async Task<Result> EndSinglePlayerSession([FromQuery] int gameType, [FromQuery] int score)
+        {
+            Result result = new Result();
+            try
+            {
+                if (HttpContext.Request.Cookies.ContainsKey("SinglePlayerSession"))
+                {
+                    var singlePlayerSessionValue = HttpContext.Request.Cookies["SinglePlayerSession"];
+
+                    var userId = User.FindFirstValue("userId");
+                    var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+                    var userAgent = Request.Headers["User-Agent"].ToString();
+
+                    SinglePlayerSessionData currentSessionData = new SinglePlayerSessionData
+                    {
+                        GameType = gameType,
+                        UserId = userId,
+                        IpAddress = ipAddress,
+                        UserAgent = userAgent,
+                        IssuedAt = DateTime.UtcNow
+                    };
+
+                    _serviceManager.GameService.DecryptSinglePlayerSession(gameType, score, currentSessionData, singlePlayerSessionValue);
+
+                    HttpContext.Response.Cookies.Delete("SinglePlayerSession");
+
+                    result.Header.ResultCode = "200";
+                    result.Header.ResultDescription = "SUCCESS";
+                }
+                result.Header.ResultCode = "200";
+                result.Header.ResultDescription = "SUCCESS";
+            }
+            catch (Exception ex)
+            {
+                result.Header.ResultCode = "500";
+                result.Header.ResultDescription = "INTERNAL SERVER ERROR";
+                result.Data = ex.Message;
+            }
+            return await Task.FromResult(result);
+        }
+
+        [Route("EndSinglePlayerSessionEarly")]
+        [HttpDelete]
+        public async Task<Result> EndSinglePlayerSessionEarly()
+        {
+            Result result = new Result();
+            try
+            {
+                if (HttpContext.Request.Cookies.ContainsKey("SinglePlayerSession"))
+                {
+                    HttpContext.Response.Cookies.Delete("SinglePlayerSession");
+                }
+                result.Header.ResultCode = "200";
+                result.Header.ResultDescription = "SUCCESS";
             }
             catch (Exception ex)
             {

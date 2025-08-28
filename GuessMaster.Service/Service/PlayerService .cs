@@ -91,5 +91,17 @@ namespace GuessMaster.Service.Service
                 throw;
             }
         }
+
+        public HighScores GetHighScores(int userId)
+        {
+            try
+            {
+                return _repositoryManager.PlayerRepository.GetAllHighscores(userId);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }
