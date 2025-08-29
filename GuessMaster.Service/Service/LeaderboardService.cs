@@ -20,5 +20,10 @@ namespace GuessMaster.Service.Service
         {
             return _repositoryManager.LeaderboardRepository.GetTopTenPlayers(gameType);
         }
+
+        public void GetPlayerRank(int gameType, string username, out int rank, out int score)
+        {
+            _repositoryManager.LeaderboardRepository.GetPlayerRank(gameType, username, out rank, out score);
+        }
     }
 }

@@ -90,6 +90,14 @@ namespace GuessMaster.Repository.Repository
             score = 0;
             try
             {
+                string cacheKey = $"PlayerRank_{username}_{gameType}";
+                if (_cache.TryGetValue(cacheKey, out (int Rank, int Score) cachedResult))
+                {
+                    rank = cachedResult.Rank;
+                    score = cachedResult.Score;
+                    return;
+                }
+
                 var playerEntry = _context.Leaderboards
                     .FirstOrDefault(l => l.Username == username && l.Gamemode == gameType);
                 if (playerEntry != null)

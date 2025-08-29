@@ -10,5 +10,6 @@ namespace GuessMaster.Service.Interface
     public interface ILeaderboardService
     {
         List<SessionUserDto> GetTopTenPlayers(int gameType);
+        void GetPlayerRank(int gameType, string username, out int rank, out int score);
     }
 }
