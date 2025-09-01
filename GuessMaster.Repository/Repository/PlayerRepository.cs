@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
+using GuessMaster.Model.ViewModel;
 
 
 namespace GuessMaster.Repository.Repository
@@ -38,19 +39,6 @@ namespace GuessMaster.Repository.Repository
             }
             catch (Exception)
             {
-                throw;
-            }
-        }
-
-        public IEnumerable<User> GetAllPlayers()
-        {
-            try
-            {
-                return _context.Users.ToList();
-            }
-            catch (Exception)
-            {
-
                 throw;
             }
         }
@@ -117,6 +105,82 @@ namespace GuessMaster.Repository.Repository
                 _cache.Set($"UserId_{user.UserId}", user, _cacheOptions); // Also cache by ID
             }
             return user;
+        }
+
+        public User? GetUserByEmail(string email)
+        {
+            if (_cache.TryGetValue($"Email_{email}", out User cachedUser))
+            {
+                return cachedUser;
+            }
+
+            var user = _context.Users.FirstOrDefault(u => u.Email == email);
+            if (user != null)
+            {
+                UpdateUserTimestamps(user);
+                _cache.Set($"Email_{user.Email}", user, _cacheOptions);
+                _cache.Set($"UserId_{user.UserId}", user, _cacheOptions); // Also cache by ID
+            }
+            return user;
+        }
+
+        public void SetHighscore(int userId, int gameType, int score)
+        {
+            try
+            {
+                var user = GetUserById(userId);
+                switch (gameType)
+                {
+                    case 1: // Doodle Champ
+                        if (score > user.HighscoreDoodleChamp)
+                        {
+                            user.HighscoreDoodleChamp = score;
+                        }
+                        break;
+                    case 2: // Flag Whiz
+                        if (score > user.HighscoreFlagWhiz)
+                        {
+                            user.HighscoreFlagWhiz = score;
+                        }
+                        break;
+                    case 3: // Word Snap
+                        if (score > user.HighscoreWordSnap)
+                        {
+                            user.HighscoreWordSnap = score;
+                        }
+                        break;
+                    default:
+                        throw new ArgumentException("Invalid game type specified.");
+                }
+                UpdateUserTimestamps(user);
+                _context.Users.Update(user);
+                _context.SaveChanges();
+                // Invalidate cache entries for this user
+                _cache.Remove($"UserId_{user.UserId}");
+                _cache.Remove($"Username_{user.Username}");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while setting the high score.", ex);
+            }
+        }
+
+        public HighScores GetAllHighscores(int userId)
+        {
+            try
+            {
+                var user = GetUserById(userId);
+                return new HighScores
+                {
+                    HighscoreDoodleChamp = user.HighscoreDoodleChamp,
+                    HighscoreFlagWhiz = user.HighscoreFlagWhiz,
+                    HighscoreWordSnap = user.HighscoreWordSnap
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while retrieving highscores.", ex);
+            }
         }
 
         public void UpdateUser(User user)

@@ -1,4 +1,5 @@
 ﻿using GuessMaster.Data.Models;
+using GuessMaster.Model.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,9 +12,11 @@ namespace GuessMaster.Repository.Interface
     {
         User AddPlayer(User user);
         bool RemovePlayer(User user);
-        IEnumerable<User> GetAllPlayers();
         User GetUserById(int userId);
         void UpdateUser(User user);
         User? GetUserByUsername(string username);
+        User? GetUserByEmail(string email);
+        void SetHighscore(int userId, int gameType, int score);
+        HighScores GetAllHighscores(int userId);
     }
 }

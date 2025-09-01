@@ -275,11 +275,11 @@ namespace GuessMaster.Service.Event_Handlers
         {
             if (end)
             {
-                _doodleChampRepository.GetSessionHighestScore(sessionId, out int highestScore, out string highestScoringUser);
-                _doodleChampRepository.GetSessionHighestRating(sessionId, out string highestRatedUser, out int highestRating, out string drawing);
+                _doodleChampRepository.GetSessionHighestScore(sessionId, out int highestScore, out string highestScoringUser, out string highestScoringUserAvatar);
+                _doodleChampRepository.GetSessionHighestRating(sessionId, out string highestRatedUser, out int highestRating, out string drawing, out string highestRatedUserAvatar);
 
                 _hubContext.Clients.Group(sessionId.ToString())
-                    .SendAsync(ChatEventNames.GameEnd, end, highestScoringUser, highestScore, highestRatedUser, highestRating, drawing);
+                    .SendAsync(ChatEventNames.GameEnd, end, highestScoringUser, highestScore, highestScoringUserAvatar, highestRatedUser, highestRating, drawing, highestRatedUserAvatar);
             }
             else
             {

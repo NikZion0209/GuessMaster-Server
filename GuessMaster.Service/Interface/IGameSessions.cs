@@ -1,8 +1,10 @@
 ﻿using GuessMaster.Data.Models;
+using GuessMaster.Model.ViewModel;
 using GuessMaster.Service.Service;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using static GuessMaster.Service.Service.GameSessions;
@@ -14,5 +16,7 @@ namespace GuessMaster.Service.Interface
         List<GameSessionDTO> GetAvailableGameSessions(int gameType);
         void AddUserToSession(int gameType, int sessionId, int userId);
         int AddUserToNextAvailableSession(int gameType, int userId, out int sessionId);
+        public string GenerateSinglePlayerSession(SinglePlayerSessionData sessionData);
+        public void DecryptSinglePlayerSession(int gameType, int score, SinglePlayerSessionData currentSessionData, string encrypted);
     }
 }

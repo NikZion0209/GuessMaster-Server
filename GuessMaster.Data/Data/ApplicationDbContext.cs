@@ -1,5 +1,6 @@
 ﻿using System;
 using GuessMaster.Data.Models;
+using GuessMaster.Model.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace GuessMaster.Data.Data;
@@ -16,6 +17,7 @@ public partial class ApplicationDbContext : DbContext
     }
 
     public virtual DbSet<User> Users { get; set; }
+    public virtual DbSet<Leaderboards> Leaderboards { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlServer("Name=ApplicationDbContextConnection");
@@ -59,7 +61,17 @@ public partial class ApplicationDbContext : DbContext
 
             entity.Property(e => e.Username).HasMaxLength(100);
             entity.Property(e => e.Password).HasMaxLength(100);
+            entity.Property(e => e.Email).HasMaxLength(100);
             entity.Property(e => e.AvatarId).IsRequired();
+        });
+
+        modelBuilder.Entity<Leaderboards>(entity =>
+        {
+            entity.HasKey(e => e.LeaderBoardRecordId);
+            entity.Property(e => e.Gamemode).IsRequired();
+            entity.Property(e => e.Username).HasMaxLength(100);
+            entity.Property(e => e.AvatarId).IsRequired();
+            entity.Property(e => e.Score).IsRequired();
         });
 
         OnModelCreatingPartial(modelBuilder);

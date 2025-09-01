@@ -20,7 +20,7 @@ namespace GuessMaster.Service.Service
             _config = config ?? throw new ArgumentNullException(nameof(config));
         }
 
-        public string GenerateJwt(int userId, string username, string avatarId, int sessionId = 0)
+        public string GenerateJwt(int userId, string username, string avatarId, int premiumTokens, int sessionId = 0)
         {
             var jwtKey = _config["Jwt:Key"];
             var jwtIssuer = _config["Jwt:Issuer"];
@@ -35,7 +35,8 @@ namespace GuessMaster.Service.Service
                 {
                 new Claim("userId", userId.ToString()),
                 new Claim("username", username),
-                new Claim("avatarId", avatarId)
+                new Claim("avatarId", avatarId),
+                new Claim("premiumTokens", premiumTokens.ToString())
             };
             }
             else
@@ -45,6 +46,7 @@ namespace GuessMaster.Service.Service
                 new Claim("userId", userId.ToString()),
                 new Claim("username", username),
                 new Claim("avatarId", avatarId),
+                new Claim("premiumTokens", premiumTokens.ToString()),
                 new Claim("sessionId", sessionId.ToString())
             };
             }

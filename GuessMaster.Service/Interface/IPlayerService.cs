@@ -10,8 +10,9 @@ namespace GuessMaster.Service.Interface
 {
     public interface IPlayerService
     {
-        RegisterUserDto AddOrValidateUser(User user, out RegisterUserDto registerUserDto);
+        RegisterUserDto AddUser(RegistrationPostDto user, out RegisterUserDto registerUserDto);
+        RegisterUserDto ValidateUser(RegistrationPostDto user, out RegisterUserDto registerUserDto);
         bool RemovePlayer(User user);
-        IEnumerable<User> GetAllPlayers();
+        HighScores GetHighScores(int userId);
     }
 }
