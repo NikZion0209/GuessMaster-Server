@@ -512,7 +512,7 @@ namespace GuessMaster.Repository.Repository
             }
         }
 
-        public void GetSessionHighestRating(int sessionId, out string highestRatingUsername, out int highestRating, out string drawing)
+        public void GetSessionHighestRating(int sessionId, out string highestRatingUsername, out int highestRating, out string drawing, out string highestRatedUserAvatar)
         {
             if (Sessions.TryGetValue(sessionId, out var session))
             {
@@ -520,6 +520,7 @@ namespace GuessMaster.Repository.Repository
                 highestRating = userHighestRating;
                 highestRatingUsername = session.ConnectedUsers.FirstOrDefault(u => u.Ratings == userHighestRating).Username;
                 drawing = session.ConnectedUsers.FirstOrDefault(u => u.Ratings == userHighestRating).Drawing;
+                highestRatedUserAvatar = session.ConnectedUsers.FirstOrDefault(u => u.Ratings == userHighestRating).AvatarId;
             }
             else
             {
@@ -527,7 +528,7 @@ namespace GuessMaster.Repository.Repository
             }
         }
 
-        public void GetSessionHighestScore(int sessionId, out int highestScore, out string highestScoreUsername)
+        public void GetSessionHighestScore(int sessionId, out int highestScore, out string highestScoreUsername, out string highestScoreAvatar)
         {
             if (Sessions.TryGetValue(sessionId, out var session))
             {
@@ -535,6 +536,8 @@ namespace GuessMaster.Repository.Repository
                 highestScore = userHighestScore;
                 highestScoreUsername = session.ConnectedUsers
                     .FirstOrDefault(u => u.Score == userHighestScore).Username;
+                highestScoreAvatar = session.ConnectedUsers
+                    .FirstOrDefault(u => u.Score == userHighestScore).AvatarId;
             }
             else
             {
