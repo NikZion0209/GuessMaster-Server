@@ -22,8 +22,8 @@ namespace GuessMaster.Model.Models
         [JsonPropertyName("size")]
         public float Size { get; set; }
         [JsonPropertyName("tool")]
-        public string Tool { get; set; } = string.Empty;
-        [JsonPropertyName("fillShape")]
-        public bool FillShape { get; set; }
+        public int Tool { get; set; }
+        [JsonPropertyName("orientationLandscape")]
+        public bool OrientationLandscape { get; set; }
     }
 }
