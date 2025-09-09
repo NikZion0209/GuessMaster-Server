@@ -103,11 +103,11 @@ namespace GuessMaster.Service.Service
                 
         }
 
-        public async Task SendDrawing(int sessionId, string drawingData)
+        public async Task SendDrawing(int sessionId, string drawingData, bool orientationLandscape)
         {
             try
             {
-                await Clients.GroupExcept(sessionId.ToString(), [Context.ConnectionId]).SendAsync(ChatEventNames.RecieveDrawing, drawingData);
+                await Clients.GroupExcept(sessionId.ToString(), [Context.ConnectionId]).SendAsync(ChatEventNames.RecieveDrawing, drawingData, orientationLandscape);
             }
             catch (Exception ex)
             {
@@ -132,12 +132,12 @@ namespace GuessMaster.Service.Service
             SaveDrawingPrompt?.Invoke(sessionId, prompt);
         }
 
-        public void SendFinalDrawing(int sessionId, string drawingData)
+        public void SendFinalDrawing(int sessionId, string drawingData, bool orientationLandscape)
         {
             try
             {
                 SaveFinalDrawing?.Invoke(sessionId, Context.ConnectionId, drawingData);
-                Clients.Group(sessionId.ToString()).SendAsync(ChatEventNames.ReceiveFinalDrawing, drawingData);
+                Clients.Group(sessionId.ToString()).SendAsync(ChatEventNames.ReceiveFinalDrawing, drawingData, orientationLandscape);
             }
             catch (Exception ex)
             {
